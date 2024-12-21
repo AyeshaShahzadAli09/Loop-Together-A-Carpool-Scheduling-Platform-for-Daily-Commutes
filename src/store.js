@@ -1,11 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import rideSlice from "./features/Ride/rideSlice";
-// import cartSlice from "./features/cart/cartSlice";
+import findRideSlice from "./features/Ride/findRideSlice";
+import offerRideSlice from "./features/Ride/offerRideSlice";
+import themeSlice from "./utils/themeSlice";
+import feedbackSlice from "./features/Reviews/FeedbackSlice"
 
 const store = configureStore({
     reducer:{
-       ride : rideSlice,
-        // cart: cartSlice,
+       findRide : findRideSlice,
+       offerRide : offerRideSlice,
+       theme : themeSlice,
+       feedback : feedbackSlice
     }
 }
 )

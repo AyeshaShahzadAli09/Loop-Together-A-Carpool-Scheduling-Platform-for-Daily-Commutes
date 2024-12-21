@@ -1,6 +1,6 @@
 // npm install react-lottie-player
 import { Player } from '@lottiefiles/react-lottie-player';
-import carAnimation from '../animations/Animation - 1729080725305.json'; // Lottie JSON file
+import carAnimation from '../animations/Animation - 1729874139836.json'; // Lottie JSON file
 
 const CarAnimation = () => {
   return (

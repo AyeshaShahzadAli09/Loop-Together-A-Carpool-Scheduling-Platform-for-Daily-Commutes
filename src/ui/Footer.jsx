@@ -1,21 +1,18 @@
 import { Link } from "react-router-dom";
-import Faqs from "../pages/FAQS";
 
 const Footer = () =>{
 
     return(
-        <footer className="bg-gray-800 text-white py-8 tracking-widest">
+        <footer className="bg-teal-900 text-white py-8 tracking-widest">
          <div className="container mx-auto text-center">
-    {/* Title */}
     <h2 className="text-2xl font-bold mb-4">Loop Together</h2>
-
-    {/* FAQ Links */}
     <div className="mb-4">
       <Link to="/faqs" className="mx-2 hover:underline">FAQ</Link>
-      <a href="#about" className="mx-2 hover:underline">About Us</a>
-      <a href="#contact" className="mx-2 hover:underline">Contact Us</a>
-      <a href="#terms" className="mx-2 hover:underline">Terms & Conditions</a>
-      <a href="#blog" className="mx-2 hover:underline">Blog</a>
+      <Link to="/contact" className="mx-2 hover:underline">Contact Us</Link>
+      <Link to="/aboutUs" className="mx-2 hover:underline">About Us</Link>
+      <Link to="/terms" className="mx-2 hover:underline">Terms & Conditions</Link>
+      <Link to="/feedbackList" className="mx-2 hover:underline">Users Review</Link>
+      <Link to="/feedbackForm" className="mx-2 hover:underline">Feedback</Link>
     </div>
 
     {/* Social Media Icons */}
@@ -34,7 +31,6 @@ const Footer = () =>{
       </a>
     </div>
 
-    {/* Copyright Text */}
     <div className="text-base">
       Copyright &copy; {new Date().getFullYear()}  looptogether.com.pk  All rights reserved.
     </div>

@@ -1,34 +1,59 @@
+/* 
+Taken from getting started guide at: https://leafletjs.com/examples/quick-start/ */
+@import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"; 
+/* <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" /> */
+/* @import "https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap";  */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* @layer components{
-  .input{
-      @apply rounded-full border border-stone-200 px-4 py-2 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-yellow-400 md:px-6 md:py-3;
+@layer components{
+  .navitems{
+      @apply px-2 mx-3 inline-block text-lg font-semibold uppercase tracking-wide text-white transition-colors duration-300 cursor-pointer hover:border-2 border-emerald-500 rounded-full hover:px-2 hover:py-1 hover:no-underline;
+  }
+  .ride-form-label{
+    @apply block text-sm font-medium text-gray-700 dark:text-slate-100
+  }
+  .ride-form-input{
+    @apply mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500  dark:text-black
+  }
+  .div-explore-card
+  {
+    @apply shadow-md rounded-lg p-6 transition duration-300 transform hover:-translate-y-2 hover:shadow-lg hover:cursor-pointer dark:border dark:border-teal-900
+  }
+  .h2-explore-card{
+    @apply text-xl font-bold mb-2 group-hover:text-slate-50 transition-colors duration-300 flex flex-col items-center
+  }
+  .p-explore-card{
+    @apply text-gray-900 group-hover:text-slate-50 transition-colors duration-300  dark:text-slate-200
   }
 
-/* https://dev.to/afif/i-made-100-css-loaders-for-your-next-project-4eje */
-/* .loader {
-  width: 45px;
-  aspect-ratio: 0.75;
-  --c: no-repeat linear-gradient(theme(colors.stone.800) 0 0);
-  background: var(--c) 0% 50%, var(--c) 50% 50%, var(--c) 100% 50%;
-  background-size: 20% 50%;
-  animation: loading 1s infinite linear;
+  /* https://dev.to/afif/i-made-100-css-loaders-for-your-next-project-4eje */
+  .loader {
+    width: 45px;
+    aspect-ratio: 0.75;
+    --c: no-repeat linear-gradient(theme(colors.stone.800) 0 0);
+    background: var(--c) 0% 50%, var(--c) 50% 50%, var(--c) 100% 50%;
+    background-size: 20% 50%;
+    animation: loading 1s infinite linear;
+  }
+
+  @keyframes loading {
+    20% {
+      background-position: 0% 0%, 50% 50%, 100% 50%;
+    }
+    40% {
+      background-position: 0% 100%, 50% 0%, 100% 50%;
+    }
+    60% {
+      background-position: 0% 50%, 50% 100%, 100% 0%;
+    }
+    80% {
+      background-position: 0% 50%, 50% 50%, 100% 100%;
+    }
+  }
 }
 
-@keyframes loading {
-  20% {
-    background-position: 0% 0%, 50% 50%, 100% 50%;
-  }
-  40% {
-    background-position: 0% 100%, 50% 0%, 100% 50%;
-  }
-  60% {
-    background-position: 0% 50%, 50% 100%, 100% 0%;
-  }
-  80% {
-    background-position: 0% 50%, 50% 50%, 100% 100%;
-  }
-}
-} */ 
+
+/* @import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap'); */

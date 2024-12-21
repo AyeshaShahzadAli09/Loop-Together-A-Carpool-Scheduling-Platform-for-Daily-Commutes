@@ -1,18 +1,15 @@
-import LoginForm from "../features/user Authentication/LoginForm";
-import CarAnimation from "../ui/CarAnimation";
-import Logo from "../ui/Logo";
+import { SignIn } from "@clerk/clerk-react"; // Clerk SignIn component
+import CarAnimation from "../ui/CarAnimation";;
 
 const Login = () =>{
     return(
-        <main className="relative flex flex-col justify-center items-center h-screen bg-gray-50">
+        <main className="relative flex flex-col justify-center items-center h-screen  bg-gray-400">
       {/* Background Car Animation  */}
-      <div className="absolute inset-0 z-0 overflow-hidden opacity-30">
-                <CarAnimation />
+      <div className="absolute inset-0 z-0 overflow-hidden opacity-90">
+            <CarAnimation />
         </div>
         <div className="relative z-10 text-center">
-                <Logo />
-                <h4 className="font-semibold text-5xl mb-7">Login to your account</h4>
-                <LoginForm />
+        <SignIn/>
         </div>
         </main>
     )

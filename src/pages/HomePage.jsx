@@ -1,7 +1,7 @@
-import ExploreCards from "../ui/ExploreCards";
 import PageNav from "./PageNav";
 import MainDisplay from "../ui/MainDisplay";
-import Community from "./Community";
+import ExploreCards from "../ui/ExploreCards";
+import Community from "../ui/Community";
 import Footer from "../ui/Footer"
 
 const HomePage = () =>{
