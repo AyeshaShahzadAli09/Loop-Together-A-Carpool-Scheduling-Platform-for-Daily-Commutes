@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Button from '../../ui/Button';
 import { FaRegUserCircle } from "react-icons/fa";
 
-
+// FindPassenger page that displays a list of ridess looking for a ride, with each rides's details and a "View" button
 const FindPassenger = () =>{
     const commutes = useSelector((state) => state.findRide.commutes);
     const [expandedIndex, setExpandedIndex] = useState(null);
@@ -21,15 +21,15 @@ const FindPassenger = () =>{
 
 //   const navigate = useNavigate();
 
-// const handleAccept = (ridesId) => {
-//   console.log(`Accepted rides ${ridesId}`);
-//   // Implement accept logic here
-// };
+const handleAccept = (ridesId) => {
+  console.log(`Accepted rides ${ridesId}`);
+  // Implement accept logic here
+};
 
-// const handleDecline = (ridesId) => {
-//   console.log(`Declined rides ${ridesId}`);
-//   // Implement decline logic here
-// };
+const handleDecline = (ridesId) => {
+  console.log(`Declined rides ${ridesId}`);
+  // Implement decline logic here
+};
   return (
     <div className="container mx-auto p-2">
     <h2 className="text-2xl font-bold mb-4 text-center">Drivers Looking for a Passengers</h2>
@@ -61,7 +61,6 @@ const FindPassenger = () =>{
                             type="linkBtn">
                             {expandedIndex === index ? "Hide Details" : "View Details"}
                         </Button>
-
                         {/* Accordion for Additional Details */}
                         {expandedIndex === index && (
                           <>
@@ -79,8 +78,8 @@ const FindPassenger = () =>{
                     </div>
                      {/* Accept/Decline Buttons on the Right */}
                      <div className="flex flex-col md:flex-row mt-14">
-                     <Button type="smallAccept" onClick={() => console.log("Accepted")}>Accept</Button>
-                     <Button type="smallDecline" onClick={() => console.log("Declined")}>Decline</Button>
+                     <Button type="smallAccept" onClick={handleAccept}>Accept</Button>
+                     <Button type="smallDecline" onClick={handleDecline}>Decline</Button>
                         </div>
                 </div>
             </div>
@@ -90,15 +89,6 @@ const FindPassenger = () =>{
 );
 };
 export default FindPassenger;
-
-// FindPassenger page that displays a list of ridess looking for a ride, with each rides's details and a "View" button
-// 1. Mock Data: For now, I’ll use an example list of ridess who are finding a ride. This data could come from an API or database in a real-world scenario.
-// Card Layout: Each rides’s information is displayed in a card-like div with a border, padding, and shadow.
-// Details Display:
-// Name is shown as a bold heading.
-// Location is formatted as “Departure to Destination.”
-// Date and Time are displayed on the last line.
-// Buttons: "Accept" and "Decline" buttons are on the right side, each with distinctive colors and a hover effect.
 
 
 

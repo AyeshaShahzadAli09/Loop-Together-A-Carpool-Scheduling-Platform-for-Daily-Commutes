@@ -2,6 +2,7 @@ import { useState } from "react";
 import { faqs } from "../hooks/faqs";
 import Footer from "../ui/Footer";
 import PageNav from "../pages/PageNav";
+
 const Faqs = () =>{
     const [activeIndex, setActiveIndex] = useState(null);
 
@@ -44,14 +45,6 @@ const Faqs = () =>{
             </p>
           </div>
         ))}
-            {/* <div className="space-y-4">
-                {faqs.map((faq, index) => (
-                    <div key={index} className="border border-gray-300 rounded-md p-4 shadow-sm transition-transform transform hover:scale-105">
-                        <h3 className="text-xl font-semibold">{faq.question}</h3>
-                        <p className="mt-2 text-slate-200">{faq.answer}</p>
-                    </div>
-                ))}
-            </div> */}
         </div>
         <Footer/>
         </main>

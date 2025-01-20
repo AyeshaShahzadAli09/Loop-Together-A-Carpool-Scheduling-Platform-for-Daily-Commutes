@@ -9,12 +9,26 @@ const CarAnimation = () => {
         loop
         src={carAnimation}
         className="w-full h-full"
-        // style={{ height: '100%', width: '100%' }} // Fullscreen dimensions
         />
   );
 };
 
 export default CarAnimation;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // The Player component renders the Lottie animation.
 // The autoplay and loop props make the animation play automatically and loop continuously.
 // The src prop points to the JSON animation file.

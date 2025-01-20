@@ -16,7 +16,6 @@ const ExploreCards = () =>{
             </h2>
             <p className="p-explore-card">Accomplished drivers contribute to a positive and enjoyable atmosphere</p>
         </div>
-
         {/* <!-- Card 2 --> */}
         <div className="group div-explore-card hover:bg-teal-900">
         <h2 className="h2-explore-card">
@@ -25,7 +24,6 @@ const ExploreCards = () =>{
         </h2>
         <p className="p-explore-card">Ensure your seat by scheduling your carpooling journey online</p>
         </div>
-
         {/* <!-- Card 3 --> */}
         <div className="group div-explore-card hover:bg-teal-900">
         <h2 className="h2-explore-card">
@@ -34,7 +32,6 @@ const ExploreCards = () =>{
         </h2>
             <p className="p-explore-card">Its convenient, economical, and contributes to a greener planet</p>
         </div>
-
         {/* <!-- Card 4 --> */}
         <div className="group div-explore-card hover:bg-teal-900">
         <h2 className="h2-explore-card">

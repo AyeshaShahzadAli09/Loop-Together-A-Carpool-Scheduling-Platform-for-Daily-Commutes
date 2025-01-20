@@ -1,5 +1,4 @@
-/* 
-Taken from getting started guide at: https://leafletjs.com/examples/quick-start/ */
+/* Taken from getting started guide at: https://leafletjs.com/examples/quick-start/ */
 @import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"; 
 /* <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" /> */
 /* @import "https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap";  */
@@ -13,10 +12,22 @@ Taken from getting started guide at: https://leafletjs.com/examples/quick-start/
       @apply px-2 mx-3 inline-block text-lg font-semibold uppercase tracking-wide text-white transition-colors duration-300 cursor-pointer hover:border-2 border-emerald-500 rounded-full hover:px-2 hover:py-1 hover:no-underline;
   }
   .ride-form-label{
-    @apply block text-sm font-medium text-gray-700 dark:text-slate-100
+    @apply block text-sm font-medium text-gray-700 dark:text-slate-100 
   }
   .ride-form-input{
-    @apply mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500  dark:text-black
+    @apply mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500  dark:text-white dark:bg-soft-black
+  }
+  /* Date/Time Picker Icon Styling */
+  .ride-form-input[type="date"]::-webkit-calendar-picker-indicator,
+  .ride-form-input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: none; /* Default light mode */
+    opacity: 1; 
+  }
+
+  .dark .ride-form-input[type="date"]::-webkit-calendar-picker-indicator,
+  .dark .ride-form-input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /*inverts the icon color in dark mode */
+    opacity: 1; 
   }
   .div-explore-card
   {
@@ -28,7 +39,9 @@ Taken from getting started guide at: https://leafletjs.com/examples/quick-start/
   .p-explore-card{
     @apply text-gray-900 group-hover:text-slate-50 transition-colors duration-300  dark:text-slate-200
   }
-
+  .formHomeInput{
+    @apply w-full p-3 border border-teal-900 rounded text-lg dark:border-teal-900 dark:text-white dark:bg-soft-black
+  }
   /* https://dev.to/afif/i-made-100-css-loaders-for-your-next-project-4eje */
   .loader {
     width: 45px;
@@ -54,6 +67,5 @@ Taken from getting started guide at: https://leafletjs.com/examples/quick-start/
     }
   }
 }
-
 
 /* @import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap'); */

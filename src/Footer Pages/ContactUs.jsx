@@ -1,4 +1,3 @@
-// import React from "react";
 import PageNav from "../pages/PageNav";
 import Footer from "../ui/Footer";
 

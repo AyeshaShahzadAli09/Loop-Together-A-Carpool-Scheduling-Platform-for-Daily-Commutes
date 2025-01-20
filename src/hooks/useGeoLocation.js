@@ -26,5 +26,3 @@ export function useGeoLocation (defaultPosition = null){
     }
     return {error ,position,isLoading, getPosition};
 }
-
-// export default {useGeoLocation};

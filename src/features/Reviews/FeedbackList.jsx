@@ -1,16 +1,23 @@
 import { useSelector } from 'react-redux';
 import Button from "../../ui/Button"
 import { useNavigate } from 'react-router-dom';
+import { useAuth} from '@clerk/clerk-react';
 import PageNav from '../../pages/PageNav';
 import Footer from '../../ui/Footer';
 const FeedbackList = () => {
     const feedbacks = useSelector((state) => state.feedback.feedbacks);
     const navigate = useNavigate();
 
+    const { isSignedIn } = useAuth(); // Check if the user is signed in
     function handleAddFeedback()
     {
-        navigate("/feedbackForm");
+        if (isSignedIn) {
+            navigate("/feedbackForm");
+    } else {
+            navigate("/sign-in");
+      }
     }
+
   return (
     <main className="bg-slate-50 text-teal-900 dark:bg-dark-gray">
         <PageNav/>
@@ -21,10 +28,10 @@ const FeedbackList = () => {
         {feedbacks.length > 0 ? (
           feedbacks.map((item, index) => (
             <div key={index} className="p-4 bg-white rounded shadow dark:bg-soft-black dark:text-white">
-         {item.satisfied !== null && ( // Check if satisfied is not null
+         {item.satisfied !== null && ( 
         <p><strong>Satisfied:</strong> {item.satisfied === true ? 'Yes' : 'No'}</p>
       )}
-      {item.rating !== null && ( // Check if rating is greater than 0
+      {item.rating !== null && ( 
         <p><strong>Rating:</strong> {item.rating} / 5</p>
       )}
       {item.notes && item.notes.trim() && ( // Check if notes exist and are not empty

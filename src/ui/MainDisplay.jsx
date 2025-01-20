@@ -1,4 +1,3 @@
-// import ImageCarousel from "../ui/ImageCarousel"
 const MainDisplay = () =>{
     return(
         <div className="flex flex-col md:flex-row items-center justify-between p-8 min-h-[75vh] bg-gray-100 dark:bg-soft-black dark:text-white">
@@ -13,7 +12,7 @@ const MainDisplay = () =>{
         </p>
       </div>
       
-      {/* Image- Section - npm install react-slick slick-carousel */}
+      {/* Image- Section */}
       <div className="flex-1">
         <img
           src="public\image3.avif"

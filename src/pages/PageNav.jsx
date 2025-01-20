@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-import Logo from "./../ui/Logo";
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../utils/themeSlice';
 import { MdOutlineDarkMode } from "react-icons/md";
 import { CiLight } from "react-icons/ci";
+import Logo from "./../ui/Logo";
+import Button from '../ui/Button';
 
 const PageNav = () => {
   const dispatch = useDispatch();
@@ -24,7 +25,6 @@ const PageNav = () => {
           Loop Together
         </span>
       </div>
-
       {/* Hamburger icon for mobile */}
       <button
         onClick={handleToggleMenu}
@@ -45,48 +45,39 @@ const PageNav = () => {
           />
         </svg>
       </button>
-
       {/* Navigation Links */}
       <ul
-        className={`flex items-center p-3 font-semibold tracking-widest space-x-4 ${isOpen ? 'flex-col  absolute top-16 left-0 bg-teal-900 w-full mt-5 md:w-auto md:flex-row' : 'hidden md:flex'}`}
-      >
+        className={`flex items-center p-3 font-semibold tracking-widest space-x-4 ${isOpen ? 'flex-col  absolute top-16 left-0 bg-teal-900 w-full mt-5 md:w-auto md:flex-row' : 'hidden md:flex'}`}>
+        {/* Auth Buttons */}
+        <SignedOut>
         <li className="navitems xs:my-1">
           <NavLink to="/">Home</NavLink>
         </li>
-        {/* <li className="navitems xs:my-1">
-          <NavLink to="/aboutUs">About Us</NavLink>
-        </li> */}
-        <li className="navitems xs:my-1">
-          <NavLink to="/app/offerRide">Offer Ride</NavLink>
-        </li>
-        <li className="navitems xs:my-1">
-          <NavLink to="/app/findRide">Find Ride</NavLink>
-        </li>
-       
-        {/* Auth Buttons */}
-        <SignedOut>
           <li className="navitems xs:my-2">
             <SignInButton>
-              LOGIN
+             REGISTER
             </SignInButton>
           </li>
         </SignedOut>
 
-        <SignedIn>
-          <li className='xs:my-2'>
-            <UserButton />
-          </li>
+        <SignedIn> 
+        <li className="navitems xs:my-1">
+        <NavLink to="/app/carpoolDashboard">Carpools</NavLink>
+      </li>
+      <li className="navitems xs:my-1">
+        <NavLink to="/app/offerRide">Offer Ride</NavLink>
+      </li>
+      <li className="navitems xs:my-1">
+        <NavLink to="/app/findRide">Find Ride</NavLink>
+      </li>
+      <li className="xs:my-2">
+        <UserButton />
+      </li>
         </SignedIn>
 
         <li className="mx-3 text-lg xs:my-1">
-          <NavLink to="/">
-            <button
-              onClick={() => dispatch(toggleTheme())}
-          className="px-4 py-2 bg-emerald-500 text-white dark:bg-emerald-700 rounded"
-            >
-              {isDarkMode ? <CiLight /> : <MdOutlineDarkMode />}
-            </button>
-          </NavLink>
+            <Button type="modeBtn" onClick={() => dispatch(toggleTheme())}>{isDarkMode ? <CiLight /> : <MdOutlineDarkMode />}
+            </Button>
         </li>
       </ul>
     </nav>

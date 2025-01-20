@@ -2,8 +2,8 @@ import PageNav from "../pages/PageNav";
 import Footer from "../ui/Footer";
 
 const TermsAndCondition = () => {
-  // Set the last updated date dynamically
-  const lastUpdatedDate = new Date().toLocaleDateString("en-US", {
+  // Set the last updated date 
+  const lastUpdatedDate = new Date("2025-01-01").toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",

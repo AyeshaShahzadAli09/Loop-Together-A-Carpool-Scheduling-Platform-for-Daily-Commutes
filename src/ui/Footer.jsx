@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import { SignedIn } from '@clerk/clerk-react';
 const Footer = () =>{
 
     return(
@@ -12,7 +12,9 @@ const Footer = () =>{
       <Link to="/aboutUs" className="mx-2 hover:underline">About Us</Link>
       <Link to="/terms" className="mx-2 hover:underline">Terms & Conditions</Link>
       <Link to="/feedbackList" className="mx-2 hover:underline">Users Review</Link>
+      <SignedIn>
       <Link to="/feedbackForm" className="mx-2 hover:underline">Feedback</Link>
+      </SignedIn>
     </div>
 
     {/* Social Media Icons */}

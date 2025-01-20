@@ -18,7 +18,7 @@ export function useGeoLocation(defaultOrigin = null, defaultDestination = null) 
           lng: pos.coords.longitude,
         };
         setOrigin(currentPosition);  // Set Origin location to current position
-        setDestination(currentPosition);  // Optionally, you can also set destination to the same position
+        setDestination(currentPosition);  
         setIsLoading(false);
       },
       (error) => {

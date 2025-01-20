@@ -8,8 +8,7 @@ const CarAnimation = () => {
         autoplay
         loop
         src={carAnimation}
-        className="w-full h-full"
-        />
+        className="w-full h-full"/>
   );
 };
 

@@ -14,15 +14,10 @@ const FindDriver = () =>{
  
 //   const navigate = useNavigate();
 
-// const handleAccept = (ridesId) => {
-//   console.log(`Accepted rides ${ridesId}`);
-//   // Implement accept logic here
-// };
-
-// const handleDecline = (ridesId) => {
-//   console.log(`Declined rides ${ridesId}`);
-//   // Implement decline logic here
-// };
+const handleRequestAccepted = (ridesId) => {
+  console.log(`Accepted rides ${ridesId}`);
+  // Implement logic here
+};
   return (
     <div className="container mx-auto p-2">
     <h2 className="text-2xl font-bold mb-4 text-center">Passengers Looking for a Ride</h2>
@@ -59,10 +54,9 @@ const FindDriver = () =>{
                             </div>
                         )}
                     </div>
-                     {/* Accept/Decline Buttons on the Right */}
                      <div className="flex flex-col md:flex-row mt-14">
-                     <Button type="smallAccept" onClick={() => console.log("Accepted")}>Accept</Button>
-                     <Button type="smallDecline" onClick={() => console.log("Declined")}>Decline</Button>
+                     <Button type="smallRequest" onClick={handleRequestAccepted}>Request</Button>
+                     
                         </div>
                 </div>
             </div>

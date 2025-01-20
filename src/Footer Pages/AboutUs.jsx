@@ -1,10 +1,10 @@
-import Footer from "../ui/Footer";
-import PageNav from "../pages/PageNav";
 import { FaStar } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5"; 
 import { BsChatSquareDotsFill } from "react-icons/bs"; 
 import { FaMap } from "react-icons/fa6";
 import AboutUsAnimation from "../ui/AboutUsAnimation";
+import Footer from "../ui/Footer";
+import PageNav from "../pages/PageNav";
 
 const AboutUs = () => {
   return (
