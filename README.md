@@ -50,14 +50,12 @@ The platform follows the *Model-View-Controller (MVC)* architecture:
    - *Reliability*: Ensures high uptime with secure backups.
    - *Usability*: Simple navigation and mobile-responsive design.
    - *Security*: Protects user data with encryption and Clerk.js authentication.
-   - 
+    
 ## Future Enhancements
 
 - Integration with payment gateways.
 - Advanced security measures for user data.
 - Expansion to handle higher concurrency for large-scale adoption.
-
---
 
 ### Start Carpooling Today!
 Join *Loop Together* for affordable, eco-friendly, and hassle-free daily commutes.
