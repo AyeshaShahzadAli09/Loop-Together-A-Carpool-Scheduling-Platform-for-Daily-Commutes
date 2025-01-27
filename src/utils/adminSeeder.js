@@ -1,31 +1,33 @@
 import { User } from '../models/index.js';
 import bcrypt from 'bcryptjs';
+import logger from './logger.js';
+import config from '../config/config.js';
 
 const seedAdmin = async () => {
   try {
-    // Check if admin exists
+    logger.info('Checking for admin user...');
     const adminExists = await User.findOne({ isAdmin: true });
     
     if (!adminExists) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 10);
       
       const admin = await User.create({
         name: 'Admin',
-        email: 'admin@looptogether.com',
+        email: config.adminEmail || 'admin@looptogether.com',
         password: hashedPassword,
         isAdmin: true,
         isVerified: true,
         gender: 'Other'
       });
 
-      console.log('Admin user created successfully');
+      logger.info('Admin user created successfully');
       return admin;
     }
     
-    console.log('Admin user already exists');
+    logger.info('Admin user already exists');
     return adminExists;
   } catch (error) {
-    console.error('Error seeding admin:', error.message);
+    logger.error('Error seeding admin:', error.message);
     throw error;
   }
 };
