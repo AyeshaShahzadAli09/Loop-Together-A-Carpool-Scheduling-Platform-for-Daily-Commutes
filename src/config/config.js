@@ -10,7 +10,10 @@ const config = {
   jwtSecret: process.env.JWT_SECRET,
   clerkPublishableKey: process.env.VITE_CLERK_PUBLISHABLE_KEY,
   isDevelopment: process.env.NODE_ENV === 'development',
-  isProduction: process.env.NODE_ENV === 'production'
+  isProduction: process.env.NODE_ENV === 'production',
+  clientUrl: process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3000' 
+    : process.env.CLIENT_URL
 };
 
 export default config; 
