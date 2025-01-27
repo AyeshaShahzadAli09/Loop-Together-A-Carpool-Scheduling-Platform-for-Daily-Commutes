@@ -1,0 +1,338 @@
+{
+    "ride_matches": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "carpoolId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "userId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "role",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "date",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "time",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "status",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "matchedAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "notifications",
+            "Data Types": [
+                "list"
+            ]
+        },
+        {
+            "Field": "routeId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        }
+    ],
+    "notifications": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "userId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "message",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "type",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "timestamp",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "read",
+            "Data Types": [
+                "bool"
+            ]
+        }
+    ],
+    "feedback": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "carpoolId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "givenBy",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "rating",
+            "Data Types": [
+                "int"
+            ]
+        },
+        {
+            "Field": "comments",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        }
+    ],
+    "route": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "start",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "end",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        }
+    ],
+    "users": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "name",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "email",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "password",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "rides",
+            "Data Types": [
+                "dict"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "updatedAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "gender",
+            "Data Types": [
+                "str"
+            ]
+        }
+    ],
+    "chats": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "participants",
+            "Data Types": [
+                "list"
+            ]
+        }
+    ],
+    "messages": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "chatId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "senderId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "sentAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "status",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "text",
+            "Data Types": [
+                "str"
+            ]
+        }
+    ],
+    "carpools": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "driverId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "schedule",
+            "Data Types": [
+                "list"
+            ]
+        },
+        {
+            "Field": "pricePerSeat",
+            "Data Types": [
+                "int"
+            ]
+        },
+        {
+            "Field": "vehicleType",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "preferredGender",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "updatedAt",
+            "Data Types": [
+                "datetime"
+            ]
+        }
+    ],
+    "user_preferences": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "userId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "schedule",
+            "Data Types": [
+                "list"
+            ]
+        }
+    ]
+}
