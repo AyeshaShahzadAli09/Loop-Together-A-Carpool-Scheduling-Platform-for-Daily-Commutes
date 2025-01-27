@@ -251,6 +251,12 @@
             "Field": "preferredPaymentMethods",
             "Data Types": ["list"],
             "Description": "Array of payment methods (cash, JazzCash, etc)"
+        },
+        {
+            "Field": "isAdmin",
+            "Data Types": ["bool"],
+            "Description": "Flag to identify admin users",
+            "Default": false
         }
     ],
     "chats": [
