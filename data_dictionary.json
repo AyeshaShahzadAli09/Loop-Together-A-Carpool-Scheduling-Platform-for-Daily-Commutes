@@ -97,6 +97,16 @@
             "Data Types": [
                 "bool"
             ]
+        },
+        {
+            "Field": "relatedEntity",
+            "Data Types": ["ObjectId"],
+            "Description": "Reference to carpool/request ID"
+        },
+        {
+            "Field": "notificationType",
+            "Data Types": ["str"],
+            "Description": "RideRequest/Verification/Cancellation/etc"
         }
     ],
     "feedback": [
@@ -211,6 +221,36 @@
             "Data Types": [
                 "str"
             ]
+        },
+        {
+            "Field": "profilePicture",
+            "Data Types": ["str"],
+            "Description": "URL to profile image storage"
+        },
+        {
+            "Field": "isDriver",
+            "Data Types": ["bool"],
+            "Description": "Flag to indicate driver status"
+        },
+        {
+            "Field": "driverLicense",
+            "Data Types": ["str"],
+            "Description": "Driver's license number (encrypted)"
+        },
+        {
+            "Field": "vehiclePlate",
+            "Data Types": ["str"],
+            "Description": "Vehicle registration plate number"
+        },
+        {
+            "Field": "isVerified",
+            "Data Types": ["bool"],
+            "Description": "Admin verification status"
+        },
+        {
+            "Field": "preferredPaymentMethods",
+            "Data Types": ["list"],
+            "Description": "Array of payment methods (cash, JazzCash, etc)"
         }
     ],
     "chats": [
@@ -225,6 +265,16 @@
             "Data Types": [
                 "list"
             ]
+        },
+        {
+            "Field": "carpoolId",
+            "Data Types": ["ObjectId"],
+            "Reference": "carpools._id"
+        },
+        {
+            "Field": "lastMessage",
+            "Data Types": ["ObjectId"],
+            "Reference": "messages._id"
         }
     ],
     "messages": [
@@ -313,6 +363,26 @@
             "Data Types": [
                 "datetime"
             ]
+        },
+        {
+            "Field": "availableSeats",
+            "Data Types": ["int"],
+            "Description": "Number of available seats"
+        },
+        {
+            "Field": "status",
+            "Data Types": ["str"],
+            "Description": "Active/Cancelled/Completed"
+        },
+        {
+            "Field": "recurrence",
+            "Data Types": ["str"],
+            "Description": "Daily/Weekly/Custom schedule"
+        },
+        {
+            "Field": "route",
+            "Data Types": ["GeoJSON"],
+            "Description": "GeoJSON route coordinates"
         }
     ],
     "user_preferences": [
@@ -333,6 +403,49 @@
             "Data Types": [
                 "list"
             ]
+        }
+    ],
+    "ride_requests": [
+        {
+            "Field": "carpoolId",
+            "Data Types": ["ObjectId"],
+            "Reference": "carpools._id"
+        },
+        {
+            "Field": "passengerId",
+            "Data Types": ["ObjectId"],
+            "Reference": "users._id"
+        },
+        {
+            "Field": "status",
+            "Data Types": ["str"],
+            "Description": "Pending/Accepted/Rejected"
+        },
+        {
+            "Field": "requestedAt",
+            "Data Types": ["datetime"]
+        }
+    ],
+    "verification_requests": [
+        {
+            "Field": "userId",
+            "Data Types": ["ObjectId"],
+            "Reference": "users._id"
+        },
+        {
+            "Field": "documents",
+            "Data Types": ["list"],
+            "Description": "Array of document URLs (ID card, license)"
+        },
+        {
+            "Field": "status",
+            "Data Types": ["str"],
+            "Description": "Pending/Approved/Rejected"
+        },
+        {
+            "Field": "processedBy",
+            "Data Types": ["ObjectId"],
+            "Reference": "users._id"
         }
     ]
 }
