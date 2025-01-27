@@ -55,7 +55,10 @@ const PageNav = () => {
           <NavLink to="/">Home</NavLink>
         </li>
         <li className="navitems xs:my-2">
-          <Button onClick={handleRegisterClick}>REGISTER</Button>
+          <NavLink to="/login">Login</NavLink>
+        </li>
+        <li className="navitems xs:my-2">
+          <NavLink to="/signup">Signup</NavLink>
         </li>
         <li className="mx-3 text-lg xs:my-1">
           <Button type="modeBtn" onClick={() => dispatch(toggleTheme())}>
