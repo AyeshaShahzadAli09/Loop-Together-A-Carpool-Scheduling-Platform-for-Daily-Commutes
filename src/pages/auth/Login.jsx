@@ -31,8 +31,17 @@ const Login = () => {
 
     try {
       const response = await login(formData);
-      dispatch({ type: 'LOGIN', payload: response.user });
-      navigate('/app/carpoolDashboard');
+      localStorage.setItem('userToken', response.token);
+      dispatch({ 
+        type: 'LOGIN', 
+        payload: {
+          ...response.user,
+          token: response.token
+        }
+      });
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 100);
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {

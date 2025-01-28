@@ -1,9 +1,8 @@
-import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
-import { useClerk } from '@clerk/clerk-react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { Suspense, lazy } from "react";
 import Loader from "./ui/Loader";
-import { AuthProvider } from './context/AuthContext';
-import { useAuth } from '@clerk/clerk-react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
 // Lazy-loaded components
 const AppLayout = lazy(() => import("./ui/AppLayout"));
 const PageNotFound = lazy(() => import("./pages/PageNotFound")); 
@@ -12,62 +11,68 @@ const Faqs = lazy(() => import("./Footer Pages/Faqs"));
 const TermsAndConditions = lazy(() => import("./Footer Pages/TermsAndConditions"));
 const ContactUs = lazy(() => import("./Footer Pages/ContactUs"));
 const AboutUs = lazy(() => import("./Footer Pages/AboutUs"));
-const CarpoolDashboard = lazy(() => import("./features/Carpool Details/CarpoolDashboard"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const SignUp = lazy(() => import("./pages/auth/SignUp"));
+const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
 
-function App() {
-  const { isSignedIn } = useClerk();
-
-  return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<Loader />}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={!isSignedIn ? <HomePage /> : <Navigate to="/app/carpoolDashboard" />} />
-            <Route path="/aboutUs" element={<AboutUs />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/faqs" element={<Faqs />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-
-            {/* Protected routes */}
-            <Route
-              path="/app"
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="carpoolDashboard" element={<CarpoolDashboard />} />
-            </Route>
-
-            {/* Fallback route */}
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
-        </Suspense>
-      </AuthProvider>
-    </BrowserRouter>
-  );
-}
-
+// Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  const { isSignedIn } = useClerk();
   
   if (loading) {
     return <Loader />;
   }
 
-  if (!isAuthenticated || !isSignedIn) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
   return children;
 };
+
+// App Component
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+// Separate component for routes to use auth context
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={!isAuthenticated ? <HomePage /> : <Navigate to="/dashboard" replace />} />
+          <Route path="/aboutUs" element={<AboutUs />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/faqs" element={<Faqs />} />
+          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
+          <Route path="/signup" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" replace />} />
+
+          {/* Protected routes */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback route */}
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
 
 export default App;
 

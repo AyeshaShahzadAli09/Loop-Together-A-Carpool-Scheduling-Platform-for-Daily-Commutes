@@ -1,5 +1,4 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
-import { useClerk } from '@clerk/clerk-react';
 
 const AuthContext = createContext();
 
@@ -36,6 +35,8 @@ function authReducer(state, action) {
     case 'AUTH_ERROR':
       return {
         ...state,
+        user: null,
+        isAuthenticated: false,
         error: action.payload,
         loading: false
       };
@@ -51,15 +52,13 @@ function authReducer(state, action) {
 
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const { signOut } = useClerk();
 
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('userToken');
       if (token) {
         try {
-          // Here you would typically verify the token with your backend
-          // For now, we'll just set the user based on the token
+          // Set initial authenticated state if token exists
           dispatch({ 
             type: 'LOGIN', 
             payload: { token } 
@@ -72,21 +71,16 @@ export function AuthProvider({ children }) {
           });
         }
       } else {
-        dispatch({ type: 'LOGOUT' });
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
 
     initAuth();
   }, []);
 
-  const logout = async () => {
-    try {
-      await signOut(); // Clerk signout
-      localStorage.removeItem('userToken');
-      dispatch({ type: 'LOGOUT' });
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const logout = () => {
+    localStorage.removeItem('userToken');
+    dispatch({ type: 'LOGOUT' });
   };
 
   return (
