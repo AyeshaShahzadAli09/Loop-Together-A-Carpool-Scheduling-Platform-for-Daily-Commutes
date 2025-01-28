@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRoute, FaCalendarAlt, FaComments, FaHistory } from 'react-icons/fa';
+import { FaRoute, FaCalendarAlt, FaComments, FaHistory, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { MdDashboard, MdNotifications } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import ProfileSection from '../../components/profile/ProfileSection';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -94,7 +97,15 @@ const ActionCard = styled(motion.div)`
 `;
 
 const UserDashboard = () => {
-  const [activeTab, setActiveTab] = React.useState('dashboard');
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const navigate = useNavigate();
+  const { dispatch } = useAuth();
+
+  const handleLogout = () => {
+    localStorage.removeItem('userToken');
+    dispatch({ type: 'LOGOUT' });
+    navigate('/');
+  };
 
   return (
     <DashboardGrid>
@@ -147,41 +158,64 @@ const UserDashboard = () => {
         >
           <MdNotifications /> Notifications
         </NavItem>
+        <NavItem
+          active={activeTab === 'profile'}
+          onClick={() => setActiveTab('profile')}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaUser /> My Profile
+        </NavItem>
+        <NavItem
+          onClick={handleLogout}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
+          className="mt-auto"
+          style={{ color: '#ef4444' }}
+        >
+          <FaSignOutAlt /> Logout
+        </NavItem>
       </Sidebar>
 
       <MainContent>
-        <WelcomeCard
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1>Welcome back, User!</h1>
-          <p>Find your perfect carpool match today</p>
-        </WelcomeCard>
+        {activeTab === 'profile' ? (
+          <ProfileSection />
+        ) : (
+          <>
+            <WelcomeCard
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1>Welcome back, User!</h1>
+              <p>Find your perfect carpool match today</p>
+            </WelcomeCard>
 
-        <ActionGrid>
-          <ActionCard
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <h3>Quick Find Ride</h3>
-            <p>Search for available carpools matching your route</p>
-          </ActionCard>
-          <ActionCard
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <h3>Scheduled Rides</h3>
-            <p>View and manage your upcoming rides</p>
-          </ActionCard>
-          <ActionCard
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <h3>Messages</h3>
-            <p>Chat with your carpool matches</p>
-          </ActionCard>
-        </ActionGrid>
+            <ActionGrid>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Quick Find Ride</h3>
+                <p>Search for available carpools matching your route</p>
+              </ActionCard>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Scheduled Rides</h3>
+                <p>View and manage your upcoming rides</p>
+              </ActionCard>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Messages</h3>
+                <p>Chat with your carpool matches</p>
+              </ActionCard>
+            </ActionGrid>
+          </>
+        )}
       </MainContent>
     </DashboardGrid>
   );

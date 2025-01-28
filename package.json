@@ -16,7 +16,10 @@
     "dev:all": "concurrently \"npm run dev\" \"npm run backend\""
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.5.1",
     "@clerk/clerk-react": "^5.16.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@lottiefiles/react-lottie-player": "^3.5.4",
     "@react-google-maps/api": "^2.20.3",
     "@reduxjs/toolkit": "^2.2.8",

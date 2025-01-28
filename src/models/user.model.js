@@ -4,7 +4,15 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  profilePicture: String,
+  bio: {
+    type: String,
+    maxLength: 500,
+    default: ''
+  },
+  profilePicture: {
+    url: String,
+    publicId: String // For cloud storage reference
+  },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },
   isDriver: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },

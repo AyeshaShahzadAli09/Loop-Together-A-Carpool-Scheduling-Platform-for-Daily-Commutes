@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import UserDashboard from './UserDashboard';
 import DriverDashboard from './DriverDashboard';
 import { useAuth } from '../../context/AuthContext';
+import DriverVerificationForm from '../../components/driver/DriverVerificationForm';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -101,14 +102,36 @@ const driverTaglines = [
   "Drive change in sustainable commuting"
 ];
 
+// Add custom toast styles
+const Toast = styled(motion.div)`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 8px;
+  z-index: 1100;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [isDriverMode, setIsDriverMode] = useState(false);
   const [currentTagline, setCurrentTagline] = useState('');
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const getRandomTagline = (taglines) => {
     const randomIndex = Math.floor(Math.random() * taglines.length);
     return taglines[randomIndex];
+  };
+
+  // Custom toast function
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 5000);
   };
 
   useEffect(() => {
@@ -116,7 +139,18 @@ const Dashboard = () => {
     setCurrentTagline(getRandomTagline(isDriverMode ? driverTaglines : userTaglines));
   }, [isDriverMode]);
 
-  const toggleMode = () => {
+  const handleModeSwitch = () => {
+    if (!user.isDriver) {
+      setShowVerificationForm(true);
+      return;
+    }
+    
+    if (user.isDriver && !user.isVerified) {
+      // Show pending verification message using our custom toast
+      showToast("Your driver verification request is being reviewed. Please check back later.");
+      return;
+    }
+
     setIsDriverMode(prev => !prev);
   };
 
@@ -139,7 +173,7 @@ const Dashboard = () => {
         </TaglineContainer>
 
         <RoleSwitcher
-          onClick={toggleMode}
+          onClick={handleModeSwitch}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -155,8 +189,46 @@ const Dashboard = () => {
       >
         {isDriverMode ? <DriverDashboard /> : <UserDashboard />}
       </DashboardContent>
+
+      <AnimatePresence>
+        {showVerificationForm && (
+          <Modal
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <DriverVerificationForm onClose={() => setShowVerificationForm(false)} />
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      {/* Add Toast */}
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+          >
+            {toast}
+          </Toast>
+        )}
+      </AnimatePresence>
     </DashboardContainer>
   );
 };
+
+const Modal = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
 export default Dashboard; 

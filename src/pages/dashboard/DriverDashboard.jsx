@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaCarAlt, FaCalendarAlt, FaComments, FaHistory, FaUsers } from 'react-icons/fa';
+import { FaCarAlt, FaCalendarAlt, FaComments, FaHistory, FaUsers, FaUser } from 'react-icons/fa';
 import { MdDashboard, MdNotifications } from 'react-icons/md';
+import { FaSignOutAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import ProfileSection from '../../components/profile/ProfileSection';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -121,7 +125,15 @@ const StatCard = styled(motion.div)`
 `;
 
 const DriverDashboard = () => {
-  const [activeTab, setActiveTab] = React.useState('dashboard');
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const navigate = useNavigate();
+  const { dispatch } = useAuth();
+
+  const handleLogout = () => {
+    localStorage.removeItem('userToken');
+    dispatch({ type: 'LOGOUT' });
+    navigate('/');
+  };
 
   return (
     <DashboardGrid>
@@ -182,65 +194,88 @@ const DriverDashboard = () => {
         >
           <MdNotifications /> Notifications
         </NavItem>
+        <NavItem
+          active={activeTab === 'profile'}
+          onClick={() => setActiveTab('profile')}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaUser /> My Profile
+        </NavItem>
+        <NavItem
+          onClick={handleLogout}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
+          className="mt-auto"
+          style={{ color: '#ef4444' }}
+        >
+          <FaSignOutAlt /> Logout
+        </NavItem>
       </Sidebar>
 
       <MainContent>
-        <WelcomeCard
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1>Welcome to Driver Mode!</h1>
-          <p>Manage your rides and connect with passengers</p>
-        </WelcomeCard>
+        {activeTab === 'profile' ? (
+          <ProfileSection />
+        ) : (
+          <>
+            <WelcomeCard
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1>Welcome to Driver Mode!</h1>
+              <p>Manage your rides and connect with passengers</p>
+            </WelcomeCard>
 
-        <StatsGrid>
-          <StatCard
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <h3>12</h3>
-            <p>Active Rides</p>
-          </StatCard>
-          <StatCard
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <h3>48</h3>
-            <p>Total Passengers</p>
-          </StatCard>
-          <StatCard
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <h3>4.8</h3>
-            <p>Rating</p>
-          </StatCard>
-        </StatsGrid>
+            <StatsGrid>
+              <StatCard
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <h3>12</h3>
+                <p>Active Rides</p>
+              </StatCard>
+              <StatCard
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <h3>48</h3>
+                <p>Total Passengers</p>
+              </StatCard>
+              <StatCard
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <h3>4.8</h3>
+                <p>Rating</p>
+              </StatCard>
+            </StatsGrid>
 
-        <ActionGrid>
-          <ActionCard
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <h3>Create New Ride</h3>
-            <p>Set up a new carpool route and schedule</p>
-          </ActionCard>
-          <ActionCard
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <h3>Passenger Requests</h3>
-            <p>View and manage ride requests</p>
-          </ActionCard>
-          <ActionCard
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <h3>Today's Schedule</h3>
-            <p>View your upcoming rides for today</p>
-          </ActionCard>
-        </ActionGrid>
+            <ActionGrid>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Create New Ride</h3>
+                <p>Set up a new carpool route and schedule</p>
+              </ActionCard>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Passenger Requests</h3>
+                <p>View and manage ride requests</p>
+              </ActionCard>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Today's Schedule</h3>
+                <p>View your upcoming rides for today</p>
+              </ActionCard>
+            </ActionGrid>
+          </>
+        )}
       </MainContent>
     </DashboardGrid>
   );
