@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { Suspense, lazy } from "react";
 import Loader from "./ui/Loader";
 import { AuthProvider, useAuth } from './context/AuthContext';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import PrivateRoute from './components/common/PrivateRoute';
 
 // Lazy-loaded components
 const AppLayout = lazy(() => import("./ui/AppLayout"));
@@ -64,6 +67,17 @@ function AppContent() {
                 <Dashboard />
               </ProtectedRoute>
             }
+          />
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <PrivateRoute>
+                <AdminDashboard />
+              </PrivateRoute>
+            } 
           />
 
           {/* Fallback route */}

@@ -12,6 +12,7 @@ const initialState = {
 function authReducer(state, action) {
   switch (action.type) {
     case 'LOGIN':
+    case 'ADMIN_LOGIN':
       if (action.payload.token) {
         localStorage.setItem('token', action.payload.token);
       }
@@ -23,6 +24,7 @@ function authReducer(state, action) {
         error: null
       };
     case 'LOGOUT':
+      localStorage.removeItem('token');
       return {
         ...state,
         user: null,
@@ -42,22 +44,6 @@ function authReducer(state, action) {
         isAuthenticated: false,
         error: action.payload,
         loading: false
-      };
-    case 'CLEAR_ERROR':
-      return {
-        ...state,
-        error: null
-      };
-    case 'LOGIN_SUCCESS':
-      if (action.payload.token) {
-        localStorage.setItem('token', action.payload.token);
-      }
-      return {
-        ...state,
-        user: action.payload.user || action.payload,
-        isAuthenticated: true,
-        loading: false,
-        error: null
       };
     case 'UPDATE_USER':
       return {
@@ -82,7 +68,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/check`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -90,25 +76,19 @@ export const AuthProvider = ({ children }) => {
       });
       
       if (!response.ok) {
-        console.error('Profile fetch failed:', response.status);
         localStorage.removeItem('token');
         dispatch({ type: 'LOGOUT' });
         return;
       }
 
       const data = await response.json();
-      if (data.success) {
-        dispatch({ 
-          type: 'LOGIN_SUCCESS', 
-          payload: { 
-            user: data.user,
-            token: token
-          } 
-        });
-      } else {
-        localStorage.removeItem('token');
-        dispatch({ type: 'LOGOUT' });
-      }
+      dispatch({ 
+        type: 'LOGIN', 
+        payload: { 
+          user: data.user,
+          token: token
+        } 
+      });
     } catch (error) {
       console.error('Error fetching user data:', error);
       localStorage.removeItem('token');
@@ -116,6 +96,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Regular user login
   const login = async (userData) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -130,26 +111,47 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
 
-      if (data.success) {
-        dispatch({
-          type: 'LOGIN',
-          payload: {
-            user: data.user,
-            token: data.token
-          }
-        });
-      } else {
-        dispatch({
-          type: 'AUTH_ERROR',
-          payload: data.error || 'Login failed'
-        });
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
       }
+
+      dispatch({
+        type: 'LOGIN',
+        payload: {
+          user: data.user,
+          token: data.token
+        }
+      });
     } catch (error) {
       dispatch({
         type: 'AUTH_ERROR',
-        payload: error.message || 'Login failed'
+        payload: error.message
       });
+      throw error;
     }
+  };
+
+  // Admin login
+  const adminLogin = async (data) => {
+    try {
+      dispatch({
+        type: 'ADMIN_LOGIN',
+        payload: {
+          user: data.user,
+          token: data.token
+        }
+      });
+    } catch (error) {
+      dispatch({
+        type: 'AUTH_ERROR',
+        payload: error.message
+      });
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    dispatch({ type: 'LOGOUT' });
   };
 
   useEffect(() => {
@@ -165,17 +167,13 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    dispatch({ type: 'LOGOUT' });
-  };
-
   return (
     <AuthContext.Provider value={{ 
-      ...state, 
-      dispatch, 
-      logout,
+      ...state,
+      dispatch,
       login,
+      adminLogin,
+      logout,
       fetchUserData
     }}>
       {children}

@@ -8,12 +8,16 @@ const StatusContainer = styled(motion.div)`
   backdrop-filter: blur(10px);
   border-radius: 15px;
   padding: 2rem;
-  margin: 1rem;
+  margin: 2rem auto;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   text-align: center;
   max-width: 500px;
-  width: 100%;
+  width: 90%;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  position: relative;
+  transform: none;
+  left: auto;
 `;
 
 const IconWrapper = styled.div`

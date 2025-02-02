@@ -99,11 +99,10 @@ const ActionCard = styled(motion.div)`
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const navigate = useNavigate();
-  const { dispatch } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    dispatch({ type: 'LOGOUT' });
+    logout();
     navigate('/');
   };
 
