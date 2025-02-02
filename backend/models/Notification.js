@@ -26,4 +26,4 @@ const notificationSchema = new mongoose.Schema({
 // TTL index for 30 days expiration
 notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });
 
-export default mongoose.model('Notification', notificationSchema);
+export default mongoose.model('Notification', notificationSchema); 

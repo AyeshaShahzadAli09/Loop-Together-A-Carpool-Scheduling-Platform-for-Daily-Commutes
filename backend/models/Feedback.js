@@ -25,4 +25,4 @@ const feedbackSchema = new mongoose.Schema({
 feedbackSchema.index({ carpool: 1 });
 feedbackSchema.index({ givenBy: 1 });
 
-export default mongoose.model('Feedback', feedbackSchema);
+export default mongoose.model('Feedback', feedbackSchema); 

@@ -53,4 +53,4 @@ const carpoolSchema = new mongoose.Schema({
 // Geospatial index
 carpoolSchema.index({ route: '2dsphere' });
 
-export default mongoose.model('Carpool', carpoolSchema);
+export default mongoose.model('Carpool', carpoolSchema); 

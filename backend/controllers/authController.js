@@ -102,8 +102,8 @@ export const adminLogin = async (req, res, next) => {
       return next(createError(403, 'Access denied. Admin only.'));
     }
 
-    // Verify password
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    // Use the model's comparePassword method instead of bcrypt.compare directly
+    const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect) {
       return next(createError(400, 'Invalid credentials'));
     }

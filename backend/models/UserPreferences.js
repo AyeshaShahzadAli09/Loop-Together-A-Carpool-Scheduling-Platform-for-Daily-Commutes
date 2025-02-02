@@ -27,4 +27,4 @@ const userPreferencesSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export default mongoose.model('UserPreferences', userPreferencesSchema);
+export default mongoose.model('UserPreferences', userPreferencesSchema); 

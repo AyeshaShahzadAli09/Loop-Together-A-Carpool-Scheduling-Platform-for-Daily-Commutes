@@ -28,4 +28,4 @@ const rideRequestSchema = new mongoose.Schema({
 // Compound index
 rideRequestSchema.index({ carpool: 1, status: 1 });
 
-export default mongoose.model('RideRequest', rideRequestSchema);
+export default mongoose.model('RideRequest', rideRequestSchema); 

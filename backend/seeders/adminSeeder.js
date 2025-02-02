@@ -27,12 +27,10 @@ export const seedAdmin = async () => {
     }
 
     // Create admin user
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    
     const admin = await User.create({
       name: 'Admin',
       email: adminEmail,
-      password: hashedPassword,
+      password: adminPassword,
       isAdmin: true,
       isVerified: true
     });
