@@ -10,6 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
+import driverRoutes from './routes/driver.js';
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users/profile', profileRoutes);
 app.use('/api/verification', verificationRoutes);
+app.use('/api/driver', driverRoutes);
 
 // Error handling should be last
 app.use(errorHandler);

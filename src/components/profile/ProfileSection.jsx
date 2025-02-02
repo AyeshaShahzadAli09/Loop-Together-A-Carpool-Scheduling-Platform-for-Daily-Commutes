@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { FaCamera, FaEdit } from 'react-icons/fa';
+import DriverVerificationForm from '../driver/DriverVerificationForm';
+import VerificationStatus from '../driver/VerificationStatus';
 
 const ProfileContainer = styled(motion.div)`
   padding: 2rem;
@@ -211,6 +213,8 @@ const ProfileSection = () => {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [previewImage, setPreviewImage] = useState(null);
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -227,6 +231,32 @@ const ProfileSection = () => {
         email: user.email || '',
         gender: user.gender || ''
       });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchVerificationStatus = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/driver/verification-status`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setVerificationStatus(data.verification);
+        }
+      } catch (error) {
+        console.error('Error fetching verification status:', error);
+      }
+    };
+
+    if (user?.isDriver) {
+      fetchVerificationStatus();
     }
   }, [user]);
 
@@ -454,20 +484,21 @@ const ProfileSection = () => {
             <p>{user?.gender || 'Not specified'}</p>
           </DetailItem>
           {user?.isDriver && (
-            <>
-              <DetailItem>
-                <Label>Driver Status</Label>
-                <p>{user?.isVerified ? 'Verified Driver' : 'Verification Pending'}</p>
-              </DetailItem>
-              {user?.isVerified && (
-                <DetailItem>
-                  <Label>Vehicle Plate</Label>
-                  <p>{user?.vehiclePlate}</p>
-                </DetailItem>
-              )}
-            </>
+            <VerificationStatus 
+              status={verificationStatus?.status || 'Pending'} 
+              feedback={verificationStatus?.feedback}
+            />
           )}
         </ProfileDetails>
+      )}
+
+      {!user?.isDriver && (
+        <button 
+          onClick={() => setShowVerificationForm(true)}
+          className="become-driver-btn"
+        >
+          Become a Driver
+        </button>
       )}
 
       {previewImage && (
@@ -476,6 +507,14 @@ const ProfileSection = () => {
           <button onClick={() => setPreviewImage(null)}>×</button>
         </ImagePreview>
       )}
+
+      <AnimatePresence>
+        {showVerificationForm && (
+          <DriverVerificationForm 
+            onClose={() => setShowVerificationForm(false)} 
+          />
+        )}
+      </AnimatePresence>
     </ProfileContainer>
   );
 };
