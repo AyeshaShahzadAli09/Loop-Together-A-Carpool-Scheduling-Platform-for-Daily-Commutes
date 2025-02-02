@@ -19,24 +19,43 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 6
   },
+  bio: {
+    type: String,
+    maxLength: 500,
+    default: ''
+  },
+  profilePicture: {
+    url: {
+      type: String,
+      default: '/public/default-profile.jpg'
+    },
+    publicId: String
+  },
   gender: {
     type: String,
-    required: true,
     enum: ['Male', 'Female', 'Other']
   },
-  role: {
-    type: String,
-    enum: ['user', 'driver', 'admin'],
-    default: 'user'
+  isDriver: {
+    type: Boolean,
+    default: false
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
   },
   isVerified: {
     type: Boolean,
     default: false
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  vehiclePlate: String,
+  driverLicense: {
+    type: String,
+    select: false // This field won't be returned in queries by default
   }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 // Hash password before saving

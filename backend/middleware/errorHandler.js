@@ -1,11 +1,13 @@
 export const errorHandler = (err, req, res, next) => {
-  const status = err.status || 500;
-  const message = err.message || 'Something went wrong';
-
-  res.status(status).json({
+  console.error('Error:', {
+    path: req.path,
+    method: req.method,
+    body: req.body,
+    error: err.stack
+  });
+  
+  res.status(err.statusCode || 500).json({
     success: false,
-    status,
-    message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : {}
+    error: err.message || 'Server Error'
   });
 }; 

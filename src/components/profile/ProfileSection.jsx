@@ -165,16 +165,97 @@ const Button = styled.button`
   }
 `;
 
+const ImageUploadProgress = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  text-align: center;
+  padding: 4px;
+  font-size: 12px;
+`;
+
+const ImagePreview = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 1000;
+
+  img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+  }
+
+  button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+  }
+`;
+
 const ProfileSection = () => {
   const { user, dispatch } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewImage, setPreviewImage] = useState(null);
+  
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    bio: user?.bio || '',
-    email: user?.email || '',
-    gender: user?.gender || ''
+    name: '',
+    bio: '',
+    email: '',
+    gender: ''
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        bio: user.bio || '',
+        email: user.email || '',
+        gender: user.gender || ''
+      });
+    }
+  }, [user]);
+
+  const fetchProfileData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch profile');
+
+      const data = await response.json();
+      if (data.success) {
+        dispatch({ type: 'UPDATE_USER', payload: data.user });
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -185,20 +266,52 @@ const ProfileSection = () => {
 
     try {
       setLoading(true);
-      const response = await fetch('/api/users/profile-picture', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
+      setUploadProgress(0);
       
-      dispatch({ 
-        type: 'UPDATE_USER', 
-        payload: { ...user, profilePicture: data.profilePicture } 
-      });
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        dispatch({ type: 'LOGOUT' });
+        return;
+      }
+
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(progress);
+        }
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          if (response.success) {
+            dispatch({ 
+              type: 'UPDATE_USER', 
+              payload: { ...user, profilePicture: response.profilePicture } 
+            });
+            setUploadProgress(0);
+          }
+        } else {
+          console.error('Upload failed');
+        }
+        setLoading(false);
+      };
+
+      xhr.onerror = () => {
+        console.error('Upload failed');
+        setLoading(false);
+        setUploadProgress(0);
+      };
+
+      xhr.open('POST', `${import.meta.env.VITE_API_URL}/users/profile/picture`);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.send(formData);
     } catch (error) {
       console.error('Error uploading image:', error);
-    } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -206,18 +319,37 @@ const ProfileSection = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch('/api/users/profile', {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No token found');
+        dispatch({ type: 'LOGOUT' });
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile/update`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
-      dispatch({ type: 'UPDATE_USER', payload: data.user });
-      setIsEditing(false);
+      if (data.success) {
+        dispatch({ type: 'UPDATE_USER', payload: data.user });
+        setIsEditing(false);
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
+      if (error.message.includes('401')) {
+        dispatch({ type: 'LOGOUT' });
+      }
     } finally {
       setLoading(false);
     }
@@ -233,7 +365,8 @@ const ProfileSection = () => {
         <ProfileImage>
           <img 
             src={user?.profilePicture?.url || '/default-avatar.png'} 
-            alt={user?.name} 
+            alt={user?.name}
+            onClick={() => setPreviewImage(user?.profilePicture?.url)}
           />
           <div className="upload-overlay">
             <label htmlFor="profile-image">
@@ -248,6 +381,11 @@ const ProfileSection = () => {
               />
             </label>
           </div>
+          {loading && uploadProgress > 0 && (
+            <ImageUploadProgress>
+              Uploading: {uploadProgress}%
+            </ImageUploadProgress>
+          )}
         </ProfileImage>
 
         <ProfileInfo>
@@ -330,6 +468,13 @@ const ProfileSection = () => {
             </>
           )}
         </ProfileDetails>
+      )}
+
+      {previewImage && (
+        <ImagePreview onClick={() => setPreviewImage(null)}>
+          <img src={previewImage} alt="Profile Preview" />
+          <button onClick={() => setPreviewImage(null)}>×</button>
+        </ImagePreview>
       )}
     </ProfileContainer>
   );

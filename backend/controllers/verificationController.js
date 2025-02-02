@@ -1,0 +1,110 @@
+import Verification from '../models/Verification.js';
+import User from '../models/User.js';
+import { createError } from '../utils/error.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js'; // You'll need to implement this
+
+export const submitVerification = async (req, res, next) => {
+  try {
+    const { driverLicense, vehiclePlate } = req.body;
+    const { licenseImage, vehicleImage } = req.files;
+
+    // Check if user already has a pending verification
+    const existingVerification = await Verification.findOne({
+      user: req.user._id,
+      status: 'Pending'
+    });
+
+    if (existingVerification) {
+      return next(createError(400, 'You already have a pending verification request'));
+    }
+
+    // Upload images to cloudinary
+    const [licenseDoc, vehicleDoc] = await Promise.all([
+      uploadToCloudinary(licenseImage.path, 'driver_documents'),
+      uploadToCloudinary(vehicleImage.path, 'driver_documents')
+    ]);
+
+    // Create verification request
+    const verification = await Verification.create({
+      user: req.user._id,
+      documents: [
+        {
+          type: 'Driver License',
+          url: licenseDoc.secure_url
+        },
+        {
+          type: 'Vehicle',
+          url: vehicleDoc.secure_url
+        }
+      ],
+      status: 'Pending'
+    });
+
+    // Update user
+    await User.findByIdAndUpdate(req.user._id, {
+      driverLicense,
+      vehiclePlate,
+      isDriver: true,
+      isVerified: false
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Verification request submitted successfully',
+      verification
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getVerificationStatus = async (req, res, next) => {
+  try {
+    const verification = await Verification.findOne({
+      user: req.user._id
+    }).sort('-createdAt');
+
+    if (!verification) {
+      return next(createError(404, 'No verification request found'));
+    }
+
+    res.json({
+      success: true,
+      verification
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateVerificationStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status, feedback } = req.body;
+
+    const verification = await Verification.findById(id);
+    if (!verification) {
+      return next(createError(404, 'Verification request not found'));
+    }
+
+    verification.status = status;
+    verification.feedback = feedback;
+    verification.processedBy = req.user._id;
+    await verification.save();
+
+    // If approved, update user's verification status
+    if (status === 'Approved') {
+      await User.findByIdAndUpdate(verification.user, {
+        isVerified: true
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Verification status updated successfully',
+      verification
+    });
+  } catch (error) {
+    next(error);
+  }
+}; 
