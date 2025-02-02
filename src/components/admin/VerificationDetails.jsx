@@ -90,15 +90,14 @@ const Button = styled(motion.button)`
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   border: none;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   font-weight: bold;
-  background: ${props => props.variant === 'approve' ? '#4ade80' : '#ff4444'};
+  background: ${props => {
+    if (props.disabled) return '#808080';
+    return props.variant === 'approve' ? '#4ade80' : '#ff4444';
+  }};
   color: white;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  opacity: ${props => props.disabled ? 0.5 : 1};
 `;
 
 const Feedback = styled.textarea`
@@ -261,20 +260,20 @@ const VerificationDetails = ({ verification, onClose, onStatusUpdate }) => {
           <Button
             variant="approve"
             onClick={() => handleStatusUpdate('Approved')}
-            disabled={loading}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            disabled={loading || detailedVerification.status !== 'Pending'}
+            whileHover={{ scale: detailedVerification.status === 'Pending' ? 1.05 : 1 }}
+            whileTap={{ scale: detailedVerification.status === 'Pending' ? 0.95 : 1 }}
           >
-            Approve
+            {detailedVerification.status === 'Approved' ? 'Already Approved' : 'Approve'}
           </Button>
           <Button
             variant="reject"
             onClick={() => handleStatusUpdate('Rejected')}
-            disabled={loading}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            disabled={loading || detailedVerification.status !== 'Pending'}
+            whileHover={{ scale: detailedVerification.status === 'Pending' ? 1.05 : 1 }}
+            whileTap={{ scale: detailedVerification.status === 'Pending' ? 0.95 : 1 }}
           >
-            Reject
+            {detailedVerification.status === 'Rejected' ? 'Already Rejected' : 'Reject'}
           </Button>
         </ActionButtons>
       </ModalContent>
