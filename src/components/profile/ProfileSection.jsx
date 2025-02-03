@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { FaCamera, FaEdit } from 'react-icons/fa';
+import { FaCamera, FaEdit, FaEnvelope } from 'react-icons/fa';
 import DriverVerificationForm from '../driver/DriverVerificationForm';
 import VerificationStatus from '../driver/VerificationStatus';
 
@@ -12,6 +12,7 @@ const ProfileContainer = styled(motion.div)`
   border-radius: 20px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 `;
 
 const ProfileHeader = styled.div`
@@ -56,6 +57,9 @@ const ProfileImage = styled.div`
 
 const ProfileInfo = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const ProfileDetails = styled.div`
@@ -204,6 +208,63 @@ const ImagePreview = styled.div`
     color: white;
     cursor: pointer;
     font-size: 20px;
+  }
+`;
+
+const ProfileName = styled.h1`
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, #00ffff 0%, #4ade80 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+`;
+
+const ProfileEmail = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  
+  svg {
+    color: #4ade80;
+  }
+`;
+
+const EditButton = styled(motion.button)`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  
+  svg {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    background: rgba(0, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 `;
 
@@ -419,15 +480,28 @@ const ProfileSection = () => {
         </ProfileImage>
 
         <ProfileInfo>
-          <h1>{user?.name}</h1>
-          <p>{user?.email}</p>
-          {!isEditing && (
-            <button onClick={() => setIsEditing(true)} disabled={loading}>
-              <FaEdit /> Edit Profile
-            </button>
-          )}
+          <ProfileName>{user?.name}</ProfileName>
+          <ProfileEmail>
+            <FaEnvelope />
+            {user?.email}
+          </ProfileEmail>
         </ProfileInfo>
       </ProfileHeader>
+
+      {!isEditing && (
+        <EditButton
+          onClick={() => setIsEditing(true)}
+          disabled={loading}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <FaEdit />
+          Edit Profile
+        </EditButton>
+      )}
 
       {isEditing ? (
         <form onSubmit={handleSubmit}>
