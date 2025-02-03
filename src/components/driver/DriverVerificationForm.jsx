@@ -38,6 +38,7 @@ const CloseButton = styled.button`
   font-size: 1.5rem;
   cursor: pointer;
   transition: transform 0.2s;
+  z-index: 1001;
 
   &:hover {
     transform: scale(1.1);

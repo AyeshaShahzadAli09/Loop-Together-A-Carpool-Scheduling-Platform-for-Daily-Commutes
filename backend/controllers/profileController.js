@@ -77,35 +77,44 @@ export const uploadProfilePicture = async (req, res, next) => {
 
     const user = await User.findById(req.user._id);
     if (!user) {
+      // Clean up uploaded file
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return next(createError(404, 'User not found'));
     }
 
-    // Delete old image from Cloudinary if exists and not default
-    if (user.profilePicture?.publicId) {
-      await deleteFromCloudinary(user.profilePicture.publicId);
+    try {
+      // Delete old image from Cloudinary if exists and not default
+      if (user.profilePicture?.publicId) {
+        await deleteFromCloudinary(user.profilePicture.publicId);
+      }
+
+      // Upload new image to Cloudinary
+      const result = await uploadToCloudinary(req.file.path, 'profile_pictures');
+      
+      // Update user profile
+      user.profilePicture = {
+        url: result.secure_url,
+        publicId: result.public_id
+      };
+      await user.save();
+
+      res.json({
+        success: true,
+        message: 'Profile picture updated successfully',
+        profilePicture: user.profilePicture
+      });
+    } catch (error) {
+      // If there's an error during Cloudinary operations, clean up the file
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      throw error;
     }
-
-    // Upload new image to Cloudinary
-    const result = await uploadToCloudinary(req.file.path, 'profile_pictures');
-    
-    // Delete file from local storage
-    fs.unlinkSync(req.file.path);
-
-    // Update user profile
-    user.profilePicture = {
-      url: result.secure_url,
-      publicId: result.public_id
-    };
-    await user.save();
-
-    res.json({
-      success: true,
-      message: 'Profile picture updated successfully',
-      profilePicture: user.profilePicture
-    });
   } catch (error) {
-    // Delete uploaded file if exists
-    if (req.file) {
+    // Clean up file if it exists and there was an error
+    if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     next(error);

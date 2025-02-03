@@ -27,11 +27,12 @@ if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
   fs.mkdirSync(path.join(__dirname, 'uploads'));
 }
 
-// Update CORS options to include Authorization header
+// Update CORS options to expose headers
 const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -52,6 +53,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users/profile', profileRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/driver', driverRoutes);
+
+// Add OPTIONS handling middleware before other routes
+app.options('*', cors(corsOptions));
 
 // Error handling should be last
 app.use(errorHandler);

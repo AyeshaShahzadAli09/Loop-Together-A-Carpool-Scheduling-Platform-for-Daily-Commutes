@@ -492,15 +492,6 @@ const ProfileSection = () => {
         </ProfileDetails>
       )}
 
-      {!user?.isDriver && (
-        <button 
-          onClick={() => setShowVerificationForm(true)}
-          className="become-driver-btn"
-        >
-          Become a Driver
-        </button>
-      )}
-
       {previewImage && (
         <ImagePreview onClick={() => setPreviewImage(null)}>
           <img src={previewImage} alt="Profile Preview" />
