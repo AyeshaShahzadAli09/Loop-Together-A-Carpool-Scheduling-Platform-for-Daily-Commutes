@@ -14,6 +14,7 @@ import fs from 'fs';
 import driverRoutes from './routes/driver.js';
 import { seedAdmin } from './seeders/adminSeeder.js';
 import colors from 'colors';
+import carpoolRoutes from './routes/carpool.js';
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users/profile', profileRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/driver', driverRoutes);
+app.use('/api/carpool', carpoolRoutes);
 
 // Add OPTIONS handling middleware before other routes
 app.options('*', cors(corsOptions));

@@ -7,6 +7,7 @@ import { FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSection from '../../components/profile/ProfileSection';
+import CreateCarpoolRoute from '../../components/driver/CreateCarpoolRoute';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -216,6 +217,8 @@ const DriverDashboard = () => {
       <MainContent>
         {activeTab === 'profile' ? (
           <ProfileSection />
+        ) : activeTab === 'createRide' ? (
+          <CreateCarpoolRoute />
         ) : (
           <>
             <WelcomeCard
