@@ -90,7 +90,7 @@ const MapClickHandler = ({ onMapClick }) => {
   return null;
 };
 
-const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint }) => {
+const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint, readOnly }) => {
   const [center, setCenter] = useState([31.5204, 74.3587]);
   const [zoom, setZoom] = useState(13);
   const [routePath, setRoutePath] = useState([]);
@@ -110,7 +110,6 @@ const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint }) => {
   }, []);
 
   useEffect(() => {
-    // Calculate route when both points are set
     if (startPoint && endPoint) {
       calculateRoute(startPoint, endPoint);
     }
@@ -132,20 +131,12 @@ const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint }) => {
 
   const handleMapClick = (e) => {
     if (selectionMode === 'start') {
-      setStartPoint(e.latlng);
+      if (setStartPoint) setStartPoint(e.latlng);
       setSelectionMode(null);
     } else if (selectionMode === 'end') {
-      setEndPoint(e.latlng);
+      if (setEndPoint) setEndPoint(e.latlng);
       setSelectionMode(null);
     }
-  };
-
-  const handleStartSelection = () => {
-    setSelectionMode('start');
-  };
-
-  const handleEndSelection = () => {
-    setSelectionMode('end');
   };
 
   return (
@@ -169,31 +160,33 @@ const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint }) => {
         )}
       </LocationInfo>
 
-      <SelectionButtons>
-        <Button 
-          onClick={handleStartSelection}
-          active={selectionMode === 'start'}
-          disabled={selectionMode === 'end'}
-        >
-          <FaMapMarkerAlt color="green" />
-          Set Start Point
-        </Button>
-        <Button 
-          onClick={handleEndSelection}
-          active={selectionMode === 'end'}
-          disabled={selectionMode === 'start'}
-        >
-          <FaMapMarkerAlt color="red" />
-          Set End Point
-        </Button>
-      </SelectionButtons>
+      {!readOnly && (
+        <SelectionButtons>
+          <Button 
+            onClick={ () => setSelectionMode('start') }
+            active={selectionMode === 'start'}
+            disabled={selectionMode === 'end'}
+          >
+            <FaMapMarkerAlt color="green" />
+            Set Start Point
+          </Button>
+          <Button 
+            onClick={ () => setSelectionMode('end') }
+            active={selectionMode === 'end'}
+            disabled={selectionMode === 'start'}
+          >
+            <FaMapMarkerAlt color="red" />
+            Set End Point
+          </Button>
+        </SelectionButtons>
+      )}
 
       <MapContainer center={center} zoom={zoom} scrollWheelZoom={true}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapClickHandler onMapClick={handleMapClick} />
+        {!readOnly && <MapClickHandler onMapClick={handleMapClick} />}
         
         {startPoint && (
           <Marker position={startPoint} icon={startIcon}>

@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import ProfileSection from '../../components/profile/ProfileSection';
 import CreateCarpoolRoute from '../../components/driver/CreateCarpoolRoute';
 import ScheduledRides from '../../components/driver/ScheduledRides';
+import RideDetailPanel from '../../components/driver/RideDetailPanel';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -128,6 +129,7 @@ const StatCard = styled(motion.div)`
 
 const DriverDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedRide, setSelectedRide] = useState(null);
   const navigate = useNavigate();
   const { dispatch } = useAuth();
 
@@ -158,7 +160,10 @@ const DriverDashboard = () => {
         </NavItem>
         <NavItem
           active={activeTab === 'schedule'}
-          onClick={() => setActiveTab('schedule')}
+          onClick={() => {
+            setActiveTab('schedule');
+            setSelectedRide(null);
+          }}
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -221,7 +226,76 @@ const DriverDashboard = () => {
         ) : activeTab === 'createRide' ? (
           <CreateCarpoolRoute />
         ) : activeTab === 'schedule' ? (
-          <ScheduledRides />
+          <div style={{ display: 'flex', gap: '1rem', transition: 'all 0.3s ease' }}>
+            <div style={{ flex: selectedRide ? '0 0 50%' : '1' }}>
+              <ScheduledRides onRideSelect={setSelectedRide} />
+            </div>
+            {selectedRide && (
+              <div style={{ flex: '0 0 50%' }}>
+                <RideDetailPanel ride={selectedRide} onClose={() => setSelectedRide(null)} />
+              </div>
+            )}
+          </div>
+        ) : activeTab === 'history' ? (
+          <>
+            <WelcomeCard
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1>Welcome to Driver Mode!</h1>
+              <p>Manage your rides and connect with passengers</p>
+            </WelcomeCard>
+
+            <StatsGrid>
+              <StatCard
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <h3>12</h3>
+                <p>Active Rides</p>
+              </StatCard>
+              <StatCard
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <h3>48</h3>
+                <p>Total Passengers</p>
+              </StatCard>
+              <StatCard
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <h3>4.8</h3>
+                <p>Rating</p>
+              </StatCard>
+            </StatsGrid>
+
+            <ActionGrid>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Create New Ride</h3>
+                <p>Set up a new carpool route and schedule</p>
+              </ActionCard>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <h3>Passenger Requests</h3>
+                <p>View and manage ride requests</p>
+              </ActionCard>
+              <ActionCard
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setActiveTab('schedule')}
+              >
+                <h3>Today's Schedule</h3>
+                <p>View your upcoming rides for today</p>
+              </ActionCard>
+            </ActionGrid>
+          </>
         ) : (
           <>
             <WelcomeCard

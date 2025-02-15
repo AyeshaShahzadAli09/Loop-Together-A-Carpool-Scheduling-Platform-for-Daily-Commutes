@@ -114,11 +114,10 @@ const StatusBadge = styled.span`
   }};
 `;
 
-const ScheduledRides = () => {
+const ScheduledRides = ({ onRideSelect }) => {
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilters, setActiveFilters] = useState(['upcoming']);
-  const [selectedRide, setSelectedRide] = useState(null);
 
   useEffect(() => {
     fetchRides();
@@ -149,9 +148,10 @@ const ScheduledRides = () => {
   };
 
   const handleRideClick = (ride) => {
-    setSelectedRide(ride);
-    // Navigate to ride details page
-    // navigate(`/dashboard/driver/rides/${ride._id}`);
+    if (typeof onRideSelect === 'function') {
+      onRideSelect(ride);
+    }
+    // Optionally, you could scroll or add transition effects here.
   };
 
   return (
