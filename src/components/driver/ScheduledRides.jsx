@@ -23,17 +23,6 @@ const Title = styled.h1`
   margin: 0;
 `;
 
-const FiltersContainer = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-`;
-
 const FilterButton = styled(motion.button)`
   background: ${props => props.active ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
   border: 1px solid ${props => props.active ? '#4ade80' : 'rgba(255, 255, 255, 0.1)'};
@@ -114,14 +103,77 @@ const StatusBadge = styled.span`
   }};
 `;
 
+// NEW: Filter menu and input styles
+const FilterMenu = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+`;
+
+const FilterLabel = styled.label`
+  font-size: 0.9rem;
+  color: #fff;
+`;
+
+const FilterInput = styled.input`
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  color: #333;
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  color: #333;
+`;
+
+// NEW: Details container for Price and Seats display
+const DetailsContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+`;
+
+const PriceTag = styled.div`
+  background: rgba(74, 222, 128, 0.2);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  color: #4ade80;
+  font-size: 0.9rem;
+`;
+
+const SeatsTag = styled.div`
+  background: rgba(59, 130, 246, 0.2);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  color: #3b82f6;
+  font-size: 0.9rem;
+`;
+
 const ScheduledRides = ({ onRideSelect }) => {
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilters, setActiveFilters] = useState(['upcoming']);
+  
+  // NEW filter states
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [filterSeats, setFilterSeats] = useState('');
+  const [filterPreference, setFilterPreference] = useState('No Preference');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterMinPrice, setFilterMinPrice] = useState('');
+  const [filterPrice, setFilterPrice] = useState('');
 
   useEffect(() => {
     fetchRides();
-  }, [activeFilters]);
+  }, []);
 
   const fetchRides = async () => {
     try {
@@ -139,13 +191,30 @@ const ScheduledRides = ({ onRideSelect }) => {
     }
   };
 
-  const toggleFilter = (filter) => {
-    setActiveFilters(prev => 
-      prev.includes(filter) 
-        ? prev.filter(f => f !== filter)
-        : [...prev, filter]
-    );
-  };
+  // NEW: Compute filtered rides based on new filters
+  const filteredRides = rides.filter(ride => {
+    let valid = true;
+
+    if (filterSeats) {
+      valid = valid && ride.availableSeats >= parseInt(filterSeats);
+    }
+    if (filterPreference && filterPreference !== 'No Preference') {
+      // Assumes each ride has a "preference" field (e.g., 'Male' or 'Female')
+      valid = valid && ride.preference && ride.preference.toLowerCase() === filterPreference.toLowerCase();
+    }
+    if (filterDate) {
+      const rideDate = new Date(ride.schedule[0].departureTime).toISOString().split('T')[0];
+      valid = valid && (rideDate === filterDate);
+    }
+    if (filterMinPrice) {
+      valid = valid && ride.pricePerSeat >= parseFloat(filterMinPrice);
+    }
+    if (filterPrice) {
+      valid = valid && ride.pricePerSeat <= parseFloat(filterPrice);
+    }
+
+    return valid;
+  });
 
   const handleRideClick = (ride) => {
     if (typeof onRideSelect === 'function') {
@@ -153,6 +222,10 @@ const ScheduledRides = ({ onRideSelect }) => {
     }
     // Optionally, you could scroll or add transition effects here.
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <PageContainer
@@ -162,31 +235,77 @@ const ScheduledRides = ({ onRideSelect }) => {
     >
       <Header>
         <Title>Scheduled Rides</Title>
-        <FilterButton
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <FaFilter /> Filter
+        <FilterButton onClick={() => setShowFilterMenu(!showFilterMenu)}>
+          <FaFilter /> Filters
         </FilterButton>
       </Header>
 
-      <FiltersContainer>
-        {['upcoming', 'completed', 'cancelled'].map(filter => (
-          <FilterButton
-            key={filter}
-            active={activeFilters.includes(filter)}
-            onClick={() => toggleFilter(filter)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {filter.charAt(0).toUpperCase() + filter.slice(1)}
+      {showFilterMenu && (
+        <FilterMenu>
+          <div>
+            <FilterLabel>Seats:</FilterLabel>
+            <FilterInput
+              type="number"
+              placeholder="Min Seats"
+              value={filterSeats}
+              onChange={e => setFilterSeats(e.target.value)}
+            />
+          </div>
+          <div>
+            <FilterLabel>Preference:</FilterLabel>
+            <FilterSelect
+              value={filterPreference}
+              onChange={e => setFilterPreference(e.target.value)}
+            >
+              <option>No Preference</option>
+              <option>Male</option>
+              <option>Female</option>
+            </FilterSelect>
+          </div>
+          <div>
+            <FilterLabel>Date:</FilterLabel>
+            <FilterInput
+              type="date"
+              value={filterDate}
+              onChange={e => setFilterDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <FilterLabel>Min Price:</FilterLabel>
+            <FilterInput
+              type="number"
+              placeholder="Min Price"
+              value={filterMinPrice}
+              onChange={e => setFilterMinPrice(e.target.value)}
+            />
+          </div>
+          <div>
+            <FilterLabel>Max Price:</FilterLabel>
+            <FilterInput
+              type="number"
+              placeholder="Max Price"
+              value={filterPrice}
+              onChange={e => setFilterPrice(e.target.value)}
+            />
+          </div>
+          <FilterButton onClick={() => setShowFilterMenu(false)}>
+            Apply
           </FilterButton>
-        ))}
-      </FiltersContainer>
+          <FilterButton onClick={() => {
+            setFilterSeats('');
+            setFilterPreference('No Preference');
+            setFilterDate('');
+            setFilterMinPrice('');
+            setFilterPrice('');
+          }}>
+            Clear Filters
+          </FilterButton>
+        </FilterMenu>
+      )}
 
       <RideGrid>
         <AnimatePresence>
-          {rides.map(ride => (
+          {filteredRides.map(ride => (
             <RideCard
               key={ride._id}
               onClick={() => handleRideClick(ride)}
@@ -217,15 +336,19 @@ const ScheduledRides = ({ onRideSelect }) => {
               <RideInfo>
                 <FaMapMarkerAlt />
                 <div>
-                  <div>From: {ride.route.coordinates[0][1].toFixed(6)}</div>
-                  <div>To: {ride.route.coordinates[1][1].toFixed(6)}</div>
+                  <div>
+                    From: {ride.route.coordinates[0][1].toFixed(6)}
+                  </div>
+                  <div>
+                    To: {ride.route.coordinates[1][1].toFixed(6)}
+                  </div>
                 </div>
               </RideInfo>
 
-              <RideInfo>
-                <FaUsers />
-                {ride.availableSeats} seats available
-              </RideInfo>
+              <DetailsContainer>
+                <PriceTag>PKR {ride.pricePerSeat}</PriceTag>
+                <SeatsTag>Min Seats: {ride.availableSeats}</SeatsTag>
+              </DetailsContainer>
             </RideCard>
           ))}
         </AnimatePresence>
