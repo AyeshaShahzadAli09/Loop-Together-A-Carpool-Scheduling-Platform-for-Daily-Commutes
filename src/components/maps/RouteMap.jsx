@@ -26,7 +26,7 @@ const endIcon = new L.Icon({
 
 const MapWrapper = styled.div`
   position: relative;
-  height: 400px;
+  height: ${props => props.height || '400px'};
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
@@ -90,7 +90,7 @@ const MapClickHandler = ({ onMapClick }) => {
   return null;
 };
 
-const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint, readOnly }) => {
+const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint, readOnly, height }) => {
   const [center, setCenter] = useState([31.5204, 74.3587]);
   const [zoom, setZoom] = useState(13);
   const [routePath, setRoutePath] = useState([]);
@@ -140,7 +140,7 @@ const RouteMap = ({ startPoint, setStartPoint, endPoint, setEndPoint, readOnly }
   };
 
   return (
-    <MapWrapper>
+    <MapWrapper height={height}>
       <LocationInfo>
         {selectionMode === 'start' && (
           <div className="animate-pulse">Click on the map to set start point</div>

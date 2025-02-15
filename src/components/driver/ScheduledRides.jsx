@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaClock, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
+import RouteMap from '../maps/RouteMap';
 
 const PageContainer = styled(motion.div)`
   padding: 2rem;
@@ -305,52 +306,73 @@ const ScheduledRides = ({ onRideSelect }) => {
 
       <RideGrid>
         <AnimatePresence>
-          {filteredRides.map(ride => (
-            <RideCard
-              key={ride._id}
-              onClick={() => handleRideClick(ride)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <StatusBadge status={ride.status}>
-                {ride.status.charAt(0).toUpperCase() + ride.status.slice(1)}
-              </StatusBadge>
-              
-              <RideInfo highlight>
-                <FaCalendarAlt />
-                {format(new Date(ride.schedule[0].departureTime), 'PPP')}
-              </RideInfo>
-              
-              <RideInfo>
-                <FaClock />
-                {format(new Date(ride.schedule[0].departureTime), 'p')}
-              </RideInfo>
+          {filteredRides.map(ride => {
+            // NEW: Compute start and end points from the ride coordinates
+            const startPoint = {
+              lat: ride.route.coordinates[0][1],
+              lng: ride.route.coordinates[0][0]
+            };
+            const endPoint = {
+              lat: ride.route.coordinates[1][1],
+              lng: ride.route.coordinates[1][0]
+            };
 
-              <RoutePreview>
-                {/* Add map preview here */}
-              </RoutePreview>
+            return (
+              <RideCard
+                key={ride._id}
+                onClick={() => handleRideClick(ride)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <StatusBadge status={ride.status}>
+                  {ride.status.charAt(0).toUpperCase() + ride.status.slice(1)}
+                </StatusBadge>
+                
+                <RideInfo highlight>
+                  <FaCalendarAlt />
+                  {format(new Date(ride.schedule[0].departureTime), 'PPP')}
+                </RideInfo>
+                
+                <RideInfo>
+                  <FaClock />
+                  {format(new Date(ride.schedule[0].departureTime), 'p')}
+                </RideInfo>
 
-              <RideInfo>
-                <FaMapMarkerAlt />
-                <div>
+                {/* 
+                  Updated: Render the map preview using RouteMap.
+                  We pass readOnly and a height prop (small height for preview) 
+                */}
+                <RoutePreview>
+                  <RouteMap 
+                    startPoint={startPoint} 
+                    endPoint={endPoint} 
+                    readOnly 
+                    height="100px" 
+                  />
+                </RoutePreview>
+
+                <RideInfo>
+                  <FaMapMarkerAlt />
                   <div>
-                    From: {ride.route.coordinates[0][1].toFixed(6)}
+                    <div>
+                      From: {ride.route.coordinates[0][1].toFixed(6)}
+                    </div>
+                    <div>
+                      To: {ride.route.coordinates[1][1].toFixed(6)}
+                    </div>
                   </div>
-                  <div>
-                    To: {ride.route.coordinates[1][1].toFixed(6)}
-                  </div>
-                </div>
-              </RideInfo>
+                </RideInfo>
 
-              <DetailsContainer>
-                <PriceTag>PKR {ride.pricePerSeat}</PriceTag>
-                <SeatsTag>Min Seats: {ride.availableSeats}</SeatsTag>
-              </DetailsContainer>
-            </RideCard>
-          ))}
+                <DetailsContainer>
+                  <PriceTag>PKR {ride.pricePerSeat}</PriceTag>
+                  <SeatsTag>Min Seats: {ride.availableSeats}</SeatsTag>
+                </DetailsContainer>
+              </RideCard>
+            );
+          })}
         </AnimatePresence>
       </RideGrid>
     </PageContainer>
