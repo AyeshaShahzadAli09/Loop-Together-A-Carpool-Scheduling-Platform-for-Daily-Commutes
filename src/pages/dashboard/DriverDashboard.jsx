@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSection from '../../components/profile/ProfileSection';
 import CreateCarpoolRoute from '../../components/driver/CreateCarpoolRoute';
+import ScheduledRides from '../../components/driver/ScheduledRides';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -219,6 +220,8 @@ const DriverDashboard = () => {
           <ProfileSection />
         ) : activeTab === 'createRide' ? (
           <CreateCarpoolRoute />
+        ) : activeTab === 'schedule' ? (
+          <ScheduledRides />
         ) : (
           <>
             <WelcomeCard
@@ -272,6 +275,7 @@ const DriverDashboard = () => {
               <ActionCard
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => setActiveTab('schedule')}
               >
                 <h3>Today's Schedule</h3>
                 <p>View your upcoming rides for today</p>
