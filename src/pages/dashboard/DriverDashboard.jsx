@@ -10,6 +10,7 @@ import ProfileSection from '../../components/profile/ProfileSection';
 import CreateCarpoolRoute from '../../components/driver/CreateCarpoolRoute';
 import ScheduledRides from '../../components/driver/ScheduledRides';
 import RideDetailPanel from '../../components/driver/RideDetailPanel';
+import Passengers from '../../components/driver/Passengers';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -296,6 +297,8 @@ const DriverDashboard = () => {
               </ActionCard>
             </ActionGrid>
           </>
+        ) : activeTab === 'passengers' ? (
+          <Passengers />
         ) : (
           <>
             <WelcomeCard
