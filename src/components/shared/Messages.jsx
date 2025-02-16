@@ -52,6 +52,9 @@ const Message = styled(motion.div)`
   color: #fff;
   position: relative;
   word-break: break-word;
+  
+  border-bottom-right-radius: ${props => props.sent ? '5px' : '15px'};
+  border-bottom-left-radius: ${props => !props.sent ? '5px' : '15px'};
 `;
 
 const InputArea = styled.form`
@@ -98,6 +101,28 @@ const SendButton = styled(motion.button)`
   }
 `;
 
+const MessageContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: ${props => props.sent ? 'flex-end' : 'flex-start'};
+  margin-bottom: 0.5rem;
+`;
+
+const Avatar = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: ${props => props.sent ? 'rgba(255, 0, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.8rem;
+  order: ${props => props.sent ? '2' : '1'};
+`;
+
 const Messages = ({ isDriverMode }) => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [message, setMessage] = useState('');
@@ -105,10 +130,10 @@ const Messages = ({ isDriverMode }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (selectedChat) {
+    if (selectedChat?._id) {
       fetchMessages();
     }
-  }, [selectedChat]);
+  }, [selectedChat?._id]);
 
   useEffect(() => {
     if (messageListRef.current) {
@@ -172,6 +197,15 @@ const Messages = ({ isDriverMode }) => {
     }
   };
 
+  const getInitials = (name) => {
+    if (!name) return '';
+    return name.split(' ')
+      .map(part => part[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
   return (
     <Container>
       {!selectedChat ? (
@@ -183,16 +217,37 @@ const Messages = ({ isDriverMode }) => {
         <ChatWindow>
           <MessageList ref={messageListRef}>
             <AnimatePresence>
-              {selectedChat.messages.map(msg => (
-                <Message
-                  key={msg._id}
-                  sent={msg.sender === user._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  {msg.content}
-                </Message>
-              ))}
+              {selectedChat.messages ? (
+                selectedChat.messages.map(msg => {
+                  const isSentByUser = msg.sender === user._id;
+                  const senderName = isSentByUser 
+                    ? user.name 
+                    : selectedChat.participants.find(p => p._id !== user._id)?.name || 'User';
+                  
+                  return (
+                    <MessageContainer key={msg._id} sent={isSentByUser}>
+                      <Avatar sent={isSentByUser}>
+                        {getInitials(senderName)}
+                      </Avatar>
+                      <Message
+                        sent={isSentByUser}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        {msg.content}
+                      </Message>
+                    </MessageContainer>
+                  );
+                })
+              ) : (
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  padding: '1rem' 
+                }}>
+                  Loading messages...
+                </div>
+              )}
             </AnimatePresence>
           </MessageList>
           <InputArea onSubmit={sendMessage}>

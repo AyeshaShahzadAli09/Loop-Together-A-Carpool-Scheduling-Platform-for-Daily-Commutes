@@ -29,12 +29,16 @@ const UserInfo = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const Avatar = styled.img`
+const Avatar = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover;
   background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #fff;
 `;
 
 const Name = styled.span`
@@ -171,6 +175,15 @@ const RideRequestList = ({ onSelectRide, isDriverMode }) => {
     }
   };
 
+  const getInitials = (name) => {
+    if (!name) return '';
+    return name.split(' ')
+      .map(part => part[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
   if (loading) {
     return <NoRequests>Loading...</NoRequests>;
   }
@@ -194,13 +207,12 @@ const RideRequestList = ({ onSelectRide, isDriverMode }) => {
             exit={{ opacity: 0, x: -20 }}
           >
             <UserInfo>
-              <Avatar 
-                src={isDriverMode
-                  ? item.participants.find(p => p._id !== user._id)?.profilePicture
-                  : item.carpool.driver.profilePicture
-                } 
-                alt="Profile" 
-              />
+              <Avatar>
+                {getInitials(isDriverMode
+                  ? item.participants.find(p => p._id !== user._id)?.name
+                  : item.carpool.driver.name
+                )}
+              </Avatar>
               <Name>
                 {isDriverMode
                   ? item.participants.find(p => p._id !== user._id)?.name
