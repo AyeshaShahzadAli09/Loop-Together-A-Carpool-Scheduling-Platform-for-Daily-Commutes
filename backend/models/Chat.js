@@ -14,6 +14,11 @@ const messageSchema = new mongoose.Schema({
   content: {
     type: String,
     required: true
+  },
+  status: {
+    type: String,
+    enum: ['sent', 'delivered', 'read'],
+    default: 'sent'
   }
 }, {
   timestamps: true
@@ -24,17 +29,26 @@ const chatSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  carpool: {
+  rideRequest: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Carpool'
+    ref: 'RideRequest',
+    required: true
   },
   lastMessage: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Message'
+  },
+  status: {
+    type: String,
+    enum: ['active', 'archived'],
+    default: 'active'
   }
 }, {
   timestamps: true
 });
+
+// Compound index for efficient querying
+chatSchema.index({ rideRequest: 1, participants: 1 });
 
 export const Message = mongoose.model('Message', messageSchema);
 export const Chat = mongoose.model('Chat', chatSchema); 

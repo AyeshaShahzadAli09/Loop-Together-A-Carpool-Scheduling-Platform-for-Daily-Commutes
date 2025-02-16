@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import ProfileSection from '../../components/profile/ProfileSection';
 import FindRidesSection from '../../components/rider/FindRides';
 import ScheduledRides from '../../components/rider/ScheduledRides';
+import Messages from '../../components/shared/Messages';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -179,7 +180,9 @@ const UserDashboard = () => {
       </Sidebar>
 
       <MainContent>
-        {activeTab === 'profile' ? (
+        {activeTab === 'messages' ? (
+          <Messages isDriverMode={false} />
+        ) : activeTab === 'profile' ? (
           <ProfileSection />
         ) : activeTab === 'findRides' ? (
           <FindRidesSection />

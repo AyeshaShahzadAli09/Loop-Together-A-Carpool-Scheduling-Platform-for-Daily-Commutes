@@ -17,6 +17,7 @@ import colors from 'colors';
 import carpoolRoutes from './routes/carpool.js';
 import rideRoutes from './routes/rides.js';
 import rideRequestRoutes from './routes/rideRequests.js';
+import chatRoutes from './routes/chat.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api/driver', driverRoutes);
 app.use('/api/carpool', carpoolRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/ride-requests', rideRequestRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Add OPTIONS handling middleware before other routes
 app.options('*', cors(corsOptions));

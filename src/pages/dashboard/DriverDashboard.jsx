@@ -11,6 +11,7 @@ import CreateCarpoolRoute from '../../components/driver/CreateCarpoolRoute';
 import ScheduledRides from '../../components/driver/ScheduledRides';
 import RideDetailPanel from '../../components/driver/RideDetailPanel';
 import Passengers from '../../components/driver/Passengers';
+import Messages from '../../components/shared/Messages';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -222,7 +223,9 @@ const DriverDashboard = () => {
       </Sidebar>
 
       <MainContent>
-        {activeTab === 'profile' ? (
+        {activeTab === 'messages' ? (
+          <Messages isDriverMode={true} />
+        ) : activeTab === 'profile' ? (
           <ProfileSection />
         ) : activeTab === 'createRide' ? (
           <CreateCarpoolRoute />
