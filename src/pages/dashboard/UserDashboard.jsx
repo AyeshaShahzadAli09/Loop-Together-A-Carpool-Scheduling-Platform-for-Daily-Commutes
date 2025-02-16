@@ -6,6 +6,7 @@ import { MdDashboard, MdNotifications } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSection from '../../components/profile/ProfileSection';
+import FindRidesSection from '../../components/rider/FindRides';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -179,6 +180,9 @@ const UserDashboard = () => {
       <MainContent>
         {activeTab === 'profile' ? (
           <ProfileSection />
+        )
+         : activeTab === 'findRides' ? (
+          <FindRidesSection />
         ) : (
           <>
             <WelcomeCard
