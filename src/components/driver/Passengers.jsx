@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import { FaUser, FaPhone, FaVenusMars, FaCheck, FaTimes, FaClock, FaUsers } from 'react-icons/fa';
+import { FaUser, FaPhone, FaVenusMars, FaCheck, FaTimes, FaClock, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaDollarSign, FaCar } from 'react-icons/fa';
+import RouteMap from '../maps/RouteMap';
 
 const Container = styled.div`
   padding: 2rem;
@@ -175,11 +176,76 @@ const StatusBadge = styled.span`
   }};
 `;
 
+// New styled components for the sliding detail panel
+const RequestDetailPanel = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 100vh;
+  background: #1a1a1a;
+  color: #fff;
+  z-index: 1000;
+  box-shadow: -4px 0 10px rgba(0,0,0,0.2);
+  overflow-y: auto;
+  padding: 2rem;
+`;
+
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+`;
+
+const DetailTitle = styled.h2`
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+`;
+
+const InfoActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+`;
+
+const RideDetailsSection = styled.div`
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const RideInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  color: rgba(255, 255, 255, 0.9);
+
+  svg {
+    color: #4ade80;
+    min-width: 20px;
+  }
+`;
+
+const MapPreview = styled.div`
+  margin: 1rem 0;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+`;
+
 const Passengers = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('pending');
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -229,6 +295,10 @@ const Passengers = () => {
       if (data.success) {
         // Refresh the requests list
         fetchRequests();
+        // Optionally clear the selected request if it was updated
+        if (selectedRequest && selectedRequest._id === requestId) {
+          setSelectedRequest(null);
+        }
       } else {
         throw new Error(data.message || `Failed to ${action} request`);
       }
@@ -290,6 +360,7 @@ const Passengers = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              onClick={() => setSelectedRequest(request)}
             >
               <StatusBadge status={request.status}>
                 {request.status}
@@ -319,7 +390,7 @@ const Passengers = () => {
                 <ActionButtons>
                   <Button
                     className="accept"
-                    onClick={() => handleAction(request._id, 'accept')}
+                    onClick={(e) => { e.stopPropagation(); handleAction(request._id, 'accept'); }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -327,7 +398,7 @@ const Passengers = () => {
                   </Button>
                   <Button
                     className="reject"
-                    onClick={() => handleAction(request._id, 'reject')}
+                    onClick={(e) => { e.stopPropagation(); handleAction(request._id, 'reject'); }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -339,6 +410,117 @@ const Passengers = () => {
           ))}
         </AnimatePresence>
       </RequestGrid>
+
+      <AnimatePresence>
+        {selectedRequest && (
+          <RequestDetailPanel
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+            <CloseButton onClick={() => setSelectedRequest(null)}>×</CloseButton>
+            
+            <DetailTitle>Request Details</DetailTitle>
+            <DetailItem>
+              <FaUser /> <strong>Passenger: </strong> {selectedRequest.passenger.name}
+            </DetailItem>
+            <DetailItem>
+              <FaPhone /> <strong>Phone: </strong> {selectedRequest.passenger.phoneNumber}
+            </DetailItem>
+            <DetailItem>
+              <FaVenusMars /> <strong>Gender: </strong> {selectedRequest.passenger.gender}
+            </DetailItem>
+            <DetailItem>
+              <FaUsers /> <strong>Seats Requested: </strong> {selectedRequest.seatsRequested}
+            </DetailItem>
+            <DetailItem>
+              <FaClock /> <strong>Requested on: </strong> 
+              {format(new Date(selectedRequest.createdAt), 'PPp')}
+            </DetailItem>
+
+            <RideDetailsSection>
+              <DetailTitle>Ride Details</DetailTitle>
+              
+              <MapPreview>
+                <RouteMap
+                  startPoint={{
+                    lat: selectedRequest.carpool.route.coordinates[0][1],
+                    lng: selectedRequest.carpool.route.coordinates[0][0]
+                  }}
+                  endPoint={{
+                    lat: selectedRequest.carpool.route.coordinates[1][1],
+                    lng: selectedRequest.carpool.route.coordinates[1][0]
+                  }}
+                  readOnly
+                  height="150px"
+                />
+              </MapPreview>
+
+              <RideInfo>
+                <FaCalendarAlt />
+                <div>
+                  <strong>Departure: </strong>
+                  {format(new Date(selectedRequest.carpool.schedule[0].departureTime), 'PPp')}
+                </div>
+              </RideInfo>
+
+              <RideInfo>
+                <FaMapMarkerAlt />
+                <div>
+                  <div><strong>From: </strong>{selectedRequest.carpool.route.coordinates[0][1].toFixed(6)}</div>
+                  <div><strong>To: </strong>{selectedRequest.carpool.route.coordinates[1][1].toFixed(6)}</div>
+                </div>
+              </RideInfo>
+
+              <RideInfo>
+                <FaDollarSign />
+                <div>
+                  <strong>Price per Seat: </strong>
+                  PKR {selectedRequest.carpool.pricePerSeat}
+                </div>
+              </RideInfo>
+
+              <RideInfo>
+                <FaCar />
+                <div>
+                  <strong>Vehicle: </strong>
+                  {selectedRequest.carpool.vehicleType}
+                </div>
+              </RideInfo>
+
+              <RideInfo>
+                <FaUsers />
+                <div>
+                  <strong>Available Seats: </strong>
+                  {selectedRequest.carpool.availableSeats}
+                </div>
+              </RideInfo>
+            </RideDetailsSection>
+
+            {selectedRequest.status === 'Pending' && (
+              <InfoActions>
+                <Button
+                  className="accept"
+                  onClick={(e) => { e.stopPropagation(); handleAction(selectedRequest._id, 'accept'); }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FaCheck /> Accept
+                </Button>
+                <Button
+                  className="reject"
+                  onClick={(e) => { e.stopPropagation(); handleAction(selectedRequest._id, 'reject'); }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FaTimes /> Reject
+                </Button>
+              </InfoActions>
+            )}
+          </RequestDetailPanel>
+        )}
+      </AnimatePresence>
     </Container>
   );
 };

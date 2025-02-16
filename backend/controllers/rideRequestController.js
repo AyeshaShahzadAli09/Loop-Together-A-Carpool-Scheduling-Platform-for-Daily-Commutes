@@ -39,12 +39,19 @@ export const getDriverRideRequests = async (req, res, next) => {
     const driverCarpools = await Carpool.find({ driver: req.user._id });
     const carpoolIds = driverCarpools.map(carpool => carpool._id);
 
-    // Get all ride requests for these carpools
+    // Get all ride requests for these carpools with populated carpool details
     const rideRequests = await RideRequest.find({
       carpool: { $in: carpoolIds }
     })
     .populate('passenger', 'name profilePicture gender phoneNumber')
-    .populate('carpool', 'route schedule pricePerSeat vehicleType vehicleModel availableSeats')
+    .populate({
+      path: 'carpool',
+      select: 'route schedule pricePerSeat vehicleType vehicleModel availableSeats preferredGender status',
+      populate: {
+        path: 'driver',
+        select: 'name profilePicture'
+      }
+    })
     .sort('-createdAt');
 
     res.status(200).json({
