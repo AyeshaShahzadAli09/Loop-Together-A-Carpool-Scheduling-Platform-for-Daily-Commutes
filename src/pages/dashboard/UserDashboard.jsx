@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSection from '../../components/profile/ProfileSection';
 import FindRidesSection from '../../components/rider/FindRides';
+import ScheduledRides from '../../components/rider/ScheduledRides';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -180,9 +181,10 @@ const UserDashboard = () => {
       <MainContent>
         {activeTab === 'profile' ? (
           <ProfileSection />
-        )
-         : activeTab === 'findRides' ? (
+        ) : activeTab === 'findRides' ? (
           <FindRidesSection />
+        ) : activeTab === 'schedule' ? (
+          <ScheduledRides />
         ) : (
           <>
             <WelcomeCard

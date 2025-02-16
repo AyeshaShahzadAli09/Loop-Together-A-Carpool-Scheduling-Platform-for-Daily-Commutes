@@ -171,4 +171,30 @@ export const getRidePassengers = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+// Get all ride requests for a user (passenger)
+export const getUserRideRequests = async (req, res, next) => {
+  try {
+    // Get all ride requests made by this user with populated carpool details
+    const rideRequests = await RideRequest.find({
+      passenger: req.user._id
+    })
+    .populate({
+      path: 'carpool',
+      select: 'route schedule pricePerSeat vehicleType vehicleModel availableSeats preferredGender status',
+      populate: {
+        path: 'driver',
+        select: 'name profilePicture'
+      }
+    })
+    .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      data: rideRequests
+    });
+  } catch (error) {
+    next(error);
+  }
 }; 

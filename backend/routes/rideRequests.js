@@ -4,7 +4,8 @@ import {
   getDriverRideRequests, 
   acceptRideRequest, 
   rejectRideRequest,
-  getRidePassengers
+  getRidePassengers,
+  getUserRideRequests
 } from '../controllers/rideRequestController.js';
 
 const router = express.Router();
@@ -16,5 +17,6 @@ router.get('/driver', getDriverRideRequests);
 router.get('/ride/:rideId/passengers', getRidePassengers);
 router.put('/:requestId/accept', acceptRideRequest);
 router.put('/:requestId/reject', rejectRideRequest);
+router.get('/user', getUserRideRequests);
 
 export default router; 
