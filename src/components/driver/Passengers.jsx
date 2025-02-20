@@ -37,7 +37,7 @@ const RequestGrid = styled.div`
 `;
 
 const RequestCard = styled(motion.div)`
-  background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+  background: linear-gradient(135deg,rgb(49, 89, 85) 0%,rgb(31, 84, 78) 100%);
   border-radius: 16px;
   padding: 1.5rem;
   border: 1px solid rgba(74, 222, 128, 0.1);
@@ -136,7 +136,7 @@ const Button = styled(motion.button)`
 
   &.reject {
     background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    color:rgb(154, 10, 10);
     &:hover {
       background: rgba(239, 68, 68, 0.3);
     }

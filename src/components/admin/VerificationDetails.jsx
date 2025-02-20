@@ -9,7 +9,7 @@ const ModalOverlay = styled(motion.div)`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(10, 15, 20, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -18,7 +18,7 @@ const ModalOverlay = styled(motion.div)`
 `;
 
 const ModalContent = styled(motion.div)`
-  background: rgba(26, 26, 46, 0.95);
+  background: rgba(20, 30, 40, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 15px;
   padding: 2rem;
@@ -36,18 +36,18 @@ const CloseButton = styled.button`
   right: 1rem;
   background: none;
   border: none;
-  color: #fff;
+  color: #d1d5db;
   cursor: pointer;
   font-size: 1.5rem;
   padding: 0.5rem;
   
   &:hover {
-    color: #ff4444;
+    color: #e63946;
   }
 `;
 
 const Title = styled.h2`
-  color: #4ade80;
+  color: #f4b400;
   margin-bottom: 1.5rem;
 `;
 
@@ -56,7 +56,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  color: #fff;
+  color: #d1d5db;
   margin-bottom: 1rem;
 `;
 
@@ -94,7 +94,7 @@ const Button = styled(motion.button)`
   font-weight: bold;
   background: ${props => {
     if (props.disabled) return '#808080';
-    return props.variant === 'approve' ? '#4ade80' : '#ff4444';
+    return props.variant === 'approve' ? '#f4b400' : '#ff4444';
   }};
   color: white;
   opacity: ${props => props.disabled ? 0.5 : 1};
@@ -106,25 +106,25 @@ const Feedback = styled.textarea`
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
+  color: #d1d5db;
   margin-top: 1rem;
   min-height: 100px;
   resize: vertical;
 
   &:focus {
     outline: none;
-    border-color: #4ade80;
+    color: #f4b400;
   }
 `;
 
 const LoadingSpinner = styled.div`
   text-align: center;
   padding: 2rem;
-  color: #fff;
+  color: #d1d5db;
 `;
 
 const ErrorMessage = styled.div`
-  color: #ff4444;
+  color: #e63946;
   text-align: center;
   padding: 2rem;
 `;

@@ -8,7 +8,7 @@ import DriverVerificationForm from '../../components/driver/DriverVerificationFo
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #0f4c46 0%, #0e3b36 100%);
   color: #fff;
   position: relative;
   padding-top: 80px;
@@ -20,7 +20,7 @@ const RoleSwitcherContainer = styled.div`
   left: 0;
   right: 0;
   height: 70px;
-  background: rgba(26, 26, 46, 0.8);
+  background: rgba(15, 76, 70, 0.8);
   backdrop-filter: blur(10px);
   display: flex;
   justify-content: space-between;
@@ -62,13 +62,13 @@ const RoleSwitcher = styled(motion.button)`
   padding: 12px 24px;
   border: none;
   border-radius: 30px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(250, 250, 250, 0.15);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5),
-              0 0 30px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2),
+            0 0 30px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 
   &:hover {
@@ -108,7 +108,7 @@ const Toast = styled(motion.div)`
   top: 20px;
   right: 20px;
   padding: 1rem 2rem;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(15, 76, 70, 0.9);
   color: white;
   border-radius: 8px;
   z-index: 1100;

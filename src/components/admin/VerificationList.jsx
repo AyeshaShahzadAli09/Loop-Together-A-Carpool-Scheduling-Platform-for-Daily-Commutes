@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaClock, FaCheckCircle, FaTimesCircle, FaFilter } from 'react-icons/fa';
 
 const ListContainer = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  background: rgba(240, 240, 240, 0.1);
+  backdrop-filter: blur(8px);
   border-radius: 15px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -28,7 +28,7 @@ const FilterButton = styled(motion.button)`
   gap: 0.5rem;
   font-weight: 500;
   transition: all 0.3s ease;
-  background: ${props => props.active ? props.activeColor : 'rgba(255, 255, 255, 0.1)'};
+  background: ${props => props.active ? props.activeColor : 'rgba(240, 240, 240, 0.1)'};
   color: ${props => props.active ? '#fff' : 'rgba(255, 255, 255, 0.7)'};
 
   &:hover {
@@ -45,11 +45,11 @@ const StatsContainer = styled.div`
 `;
 
 const StatCard = styled.div`
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(20, 20, 30, 0.4);
   border-radius: 10px;
   padding: 1rem;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(240, 240, 240, 0.1);
 
   h3 {
     color: ${props => props.color};
@@ -64,18 +64,18 @@ const StatCard = styled.div`
 `;
 
 const RequestCard = styled(motion.div)`
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(20, 20, 30, 0.4);
   border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1rem;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(240, 240, 240, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(20, 20, 30, 0.6);
   }
 `;
 
@@ -84,7 +84,7 @@ const UserInfo = styled.div`
 `;
 
 const Name = styled.h3`
-  color: #4ade80;
+  color: #2ecc71;
   margin: 0;
 `;
 
@@ -103,9 +103,9 @@ const StatusBadge = styled.span`
   gap: 0.5rem;
   background: ${({ status }) => {
     switch (status) {
-      case 'Pending': return 'linear-gradient(45deg, #ffd700, #ffa500)';
-      case 'Approved': return 'linear-gradient(45deg, #00ff00, #00cc00)';
-      case 'Rejected': return 'linear-gradient(45deg, #ff4444, #cc0000)';
+      case 'Pending': return 'linear-gradient(45deg, #f1c40f, #e67e22)';
+      case 'Approved': return 'linear-gradient(45deg, #2ecc71, #27ae60)';
+      case 'Rejected': return 'linear-gradient(45deg, #e74c3c, #c0392b)';
       default: return 'linear-gradient(45deg, #ffffff, #cccccc)';
     }
   }};
@@ -182,7 +182,7 @@ const VerificationList = ({ onSelect, selectedId }) => {
   return (
     <ListContainer>
       <StatsContainer>
-        <StatCard color="#4ade80">
+        <StatCard color="#2ecc71">
           <h3>{stats.total}</h3>
           <p>Total Requests</p>
         </StatCard>
@@ -194,7 +194,7 @@ const VerificationList = ({ onSelect, selectedId }) => {
           <h3>{stats.approved}</h3>
           <p>Approved</p>
         </StatCard>
-        <StatCard color="#ff4444">
+        <StatCard color="#e74c3c">
           <h3>{stats.rejected}</h3>
           <p>Rejected</p>
         </StatCard>
@@ -203,8 +203,8 @@ const VerificationList = ({ onSelect, selectedId }) => {
       <FilterSection>
         <FilterButton
           active={filter === 'all'}
-          activeColor="rgba(255, 255, 255, 0.2)"
-          hoverColor="rgba(255, 255, 255, 0.3)"
+          activeColor="rgba(230, 230, 230, 0.3)"
+          hoverColor="rgba(220, 220, 220, 0.4)"
           onClick={() => setFilter('all')}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
