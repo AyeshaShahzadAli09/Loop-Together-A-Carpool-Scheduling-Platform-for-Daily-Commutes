@@ -41,10 +41,7 @@ export const login = async (credentials) => {
 export const signup = async (userData) => {
   try {
     const response = await authApi.post('/signup', userData);
-    if (response.data.token) {
-      localStorage.setItem('userToken', response.data.token);
-      authApi.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-    }
+    // Don't set token or update headers
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: 'An error occurred during signup' };

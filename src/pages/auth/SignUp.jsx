@@ -6,6 +6,7 @@ import Button from '../../ui/Button';
 import CarAnimation from "../../ui/CarAnimation";
 import { FaUser, FaEnvelope, FaLock, FaVenusMars } from 'react-icons/fa';
 import MovingCarsBackground from '../../components/animations/MovingCarsBackground';
+import { toast } from 'react-hot-toast';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const SignUp = () => {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState({ message: '', visible: false });
 
   const handleChange = (e) => {
     setFormData({
@@ -26,6 +28,13 @@ const SignUp = () => {
       [e.target.name]: e.target.value
     });
     setError(null);
+  };
+
+  const showToast = (message) => {
+    setToast({ message, visible: true });
+    setTimeout(() => {
+      setToast({ message: '', visible: false });
+    }, 3000);
   };
 
   const handleSubmit = async (e) => {
@@ -47,8 +56,10 @@ const SignUp = () => {
         gender: formData.gender
       });
       
-      dispatch({ type: 'LOGIN', payload: response.user });
-      navigate('/app/carpoolDashboard');
+      showToast("Account created successfully! Please login to continue.");
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');
     } finally {
@@ -58,6 +69,12 @@ const SignUp = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900 to-teal-800">
+      {toast.visible && (
+        <div className="fixed bottom-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in-up">
+          {toast.message}
+        </div>
+      )}
+      
       <MovingCarsBackground />
       
       {/* Main content with higher z-index */}
