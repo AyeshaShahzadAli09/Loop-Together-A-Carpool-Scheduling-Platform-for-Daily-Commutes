@@ -43,12 +43,20 @@ const MessageList = styled.div`
   }
 `;
 
+const MessageContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: ${props => props.sent ? 'flex-end' : 'flex-start'};
+  margin-bottom: 0.5rem;
+  flex-direction: ${props => props.sent ? 'row-reverse' : 'row'};
+`;
+
 const Message = styled(motion.div)`
   max-width: 70%;
   padding: 0.75rem 1rem;
   border-radius: 15px;
   background: ${props => props.sent ? 'rgba(255, 0, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
-  align-self: ${props => props.sent ? 'flex-end' : 'flex-start'};
   color: #fff;
   position: relative;
   word-break: break-word;
@@ -101,14 +109,6 @@ const SendButton = styled(motion.button)`
   }
 `;
 
-const MessageContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  align-self: ${props => props.sent ? 'flex-end' : 'flex-start'};
-  margin-bottom: 0.5rem;
-`;
-
 const Avatar = styled.div`
   width: 32px;
   height: 32px;
@@ -120,7 +120,6 @@ const Avatar = styled.div`
   font-weight: 600;
   color: #fff;
   font-size: 0.8rem;
-  order: ${props => props.sent ? '2' : '1'};
 `;
 
 const Messages = ({ isDriverMode }) => {
@@ -219,7 +218,7 @@ const Messages = ({ isDriverMode }) => {
             <AnimatePresence>
               {selectedChat.messages ? (
                 selectedChat.messages.map(msg => {
-                  const isSentByUser = msg.sender === user._id;
+                  const isSentByUser = msg.sender._id === user._id;
                   const senderName = isSentByUser 
                     ? user.name 
                     : selectedChat.participants.find(p => p._id !== user._id)?.name || 'User';
