@@ -6,6 +6,7 @@ import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaDollarSign, FaArrowL
 import RouteMap from '../maps/RouteMap';
 import { useAuth } from '../../context/AuthContext';
 import SeatRequestModal from './SeatRequestModal';
+import LocationDisplay from '../common/LocationDisplay';
 
 const Container = styled(motion.div)`
   padding: 2rem;
@@ -453,8 +454,16 @@ const FindRides = () => {
                   </div>
 
                   <LocationDetails>
-                    <p><FaMapMarkerAlt /> From: {startPoint.lat.toFixed(6)}, {startPoint.lng.toFixed(6)}</p>
-                    <p>To: {endPoint.lat.toFixed(6)}, {endPoint.lng.toFixed(6)}</p>
+                    <LocationDisplay 
+                      lat={startPoint.lat} 
+                      lng={startPoint.lng} 
+                      type="from" 
+                    />
+                    <LocationDisplay 
+                      lat={endPoint.lat} 
+                      lng={endPoint.lng} 
+                      type="to" 
+                    />
                   </LocationDetails>
 
                   <RequestButton onClick={() => handleRequest(ride)}>

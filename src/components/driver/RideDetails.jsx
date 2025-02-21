@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaMapMarkerAlt, FaUsers, FaClock, FaCalendarAlt, FaDollarSign } from 'react-icons/fa';
 import { format } from 'date-fns';
 import RouteMap from '../maps/RouteMap';
+import LocationDisplay from '../common/LocationDisplay';
 
 const Container = styled(motion.div)`
   max-width: 1200px;
@@ -196,8 +197,16 @@ const RideDetails = () => {
             </Icon>
             <InfoContent>
               <h3>Route Details</h3>
-              <p>From: {ride.route.coordinates[0][1].toFixed(6)}, {ride.route.coordinates[0][0].toFixed(6)}</p>
-              <p>To: {ride.route.coordinates[1][1].toFixed(6)}, {ride.route.coordinates[1][0].toFixed(6)}</p>
+              <LocationDisplay 
+                lat={ride.route.coordinates[0][1]} 
+                lng={ride.route.coordinates[0][0]} 
+                type="from" 
+              />
+              <LocationDisplay 
+                lat={ride.route.coordinates[1][1]} 
+                lng={ride.route.coordinates[1][0]} 
+                type="to" 
+              />
             </InfoContent>
           </InfoItem>
         </InfoSection>

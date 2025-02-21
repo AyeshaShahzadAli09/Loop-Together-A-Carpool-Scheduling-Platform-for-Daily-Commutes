@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaClock, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
 import RouteMap from '../maps/RouteMap';
+import { reverseGeocodeWithDelay } from '../../utils/geocoding';
 
 const PageContainer = styled(motion.div)`
   padding: 2rem;
@@ -172,9 +173,52 @@ const ScheduledRides = ({ onRideSelect }) => {
   const [filterMinPrice, setFilterMinPrice] = useState('');
   const [filterPrice, setFilterPrice] = useState('');
 
+  const [locationNames, setLocationNames] = useState({});
+
   useEffect(() => {
     fetchRides();
   }, []);
+
+  useEffect(() => {
+    const fetchLocationNames = async () => {
+      const newLocationNames = {};
+      const uniqueLocations = new Set();
+      
+      // First collect all unique coordinates
+      rides.forEach(ride => {
+        const coords = ride.route.coordinates;
+        uniqueLocations.add(`${coords[0][1]},${coords[0][0]}`);
+        uniqueLocations.add(`${coords[1][1]},${coords[1][0]}`);
+      });
+
+      // Filter out coordinates we already have
+      const locationsToFetch = Array.from(uniqueLocations)
+        .filter(coordKey => !locationNames[coordKey]);
+
+      // Fetch in parallel with a maximum of 4 concurrent requests
+      const batchSize = 4;
+      for (let i = 0; i < locationsToFetch.length; i += batchSize) {
+        const batch = locationsToFetch.slice(i, i + batchSize);
+        const promises = batch.map(coordKey => {
+          const [lat, lng] = coordKey.split(',').map(Number);
+          return reverseGeocodeWithDelay(lat, lng)
+            .then(name => ({ coordKey, name }))
+            .catch(() => ({ coordKey, name: coordKey }));
+        });
+
+        const results = await Promise.all(promises);
+        results.forEach(({ coordKey, name }) => {
+          newLocationNames[coordKey] = name;
+        });
+      }
+
+      if (Object.keys(newLocationNames).length > 0) {
+        setLocationNames(prev => ({ ...prev, ...newLocationNames }));
+      }
+    };
+
+    fetchLocationNames();
+  }, [rides]);
 
   const fetchRides = async () => {
     try {
@@ -216,6 +260,47 @@ const ScheduledRides = ({ onRideSelect }) => {
 
     return valid;
   });
+
+  useEffect(() => {
+    const fetchLocationNames = async () => {
+      const newLocationNames = {};
+      const uniqueLocations = new Set();
+      
+      // First collect all unique coordinates
+      filteredRides.forEach(ride => {
+        const coords = ride.route.coordinates;
+        uniqueLocations.add(`${coords[0][1]},${coords[0][0]}`);
+        uniqueLocations.add(`${coords[1][1]},${coords[1][0]}`);
+      });
+
+      // Filter out coordinates we already have
+      const locationsToFetch = Array.from(uniqueLocations)
+        .filter(coordKey => !locationNames[coordKey]);
+
+      // Fetch in parallel with a maximum of 4 concurrent requests
+      const batchSize = 4;
+      for (let i = 0; i < locationsToFetch.length; i += batchSize) {
+        const batch = locationsToFetch.slice(i, i + batchSize);
+        const promises = batch.map(coordKey => {
+          const [lat, lng] = coordKey.split(',').map(Number);
+          return reverseGeocodeWithDelay(lat, lng)
+            .then(name => ({ coordKey, name }))
+            .catch(() => ({ coordKey, name: coordKey }));
+        });
+
+        const results = await Promise.all(promises);
+        results.forEach(({ coordKey, name }) => {
+          newLocationNames[coordKey] = name;
+        });
+      }
+
+      if (Object.keys(newLocationNames).length > 0) {
+        setLocationNames(prev => ({ ...prev, ...newLocationNames }));
+      }
+    };
+
+    fetchLocationNames();
+  }, [filteredRides]);
 
   const handleRideClick = (ride) => {
     if (typeof onRideSelect === 'function') {
@@ -358,10 +443,12 @@ const ScheduledRides = ({ onRideSelect }) => {
                   <FaMapMarkerAlt />
                   <div>
                     <div>
-                      From: {ride.route.coordinates[0][1].toFixed(6)}
+                      From: {locationNames[`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`] || 
+                             `${ride.route.coordinates[0][1].toFixed(6)}, ${ride.route.coordinates[0][0].toFixed(6)}`}
                     </div>
                     <div>
-                      To: {ride.route.coordinates[1][1].toFixed(6)}
+                      To: {locationNames[`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`] || 
+                           `${ride.route.coordinates[1][1].toFixed(6)}, ${ride.route.coordinates[1][0].toFixed(6)}`}
                     </div>
                   </div>
                 </RideInfo>
