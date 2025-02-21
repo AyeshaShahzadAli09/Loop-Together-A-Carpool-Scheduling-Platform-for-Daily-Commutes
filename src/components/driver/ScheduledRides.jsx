@@ -184,11 +184,12 @@ const ScheduledRides = ({ onRideSelect }) => {
       const newLocationNames = {};
       const uniqueLocations = new Set();
       
-      // First collect all unique coordinates
+      // Collect all unique coordinates from rides
       rides.forEach(ride => {
-        const coords = ride.route.coordinates;
-        uniqueLocations.add(`${coords[0][1]},${coords[0][0]}`);
-        uniqueLocations.add(`${coords[1][1]},${coords[1][0]}`);
+        if (ride.route?.coordinates) {
+          uniqueLocations.add(`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`);
+          uniqueLocations.add(`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`);
+        }
       });
 
       // Filter out coordinates we already have
@@ -217,7 +218,9 @@ const ScheduledRides = ({ onRideSelect }) => {
       }
     };
 
-    fetchLocationNames();
+    if (rides.length > 0) {
+      fetchLocationNames();
+    }
   }, [rides]);
 
   const fetchRides = async () => {
@@ -443,12 +446,16 @@ const ScheduledRides = ({ onRideSelect }) => {
                   <FaMapMarkerAlt />
                   <div>
                     <div>
-                      From: {locationNames[`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`] || 
-                             `${ride.route.coordinates[0][1].toFixed(6)}, ${ride.route.coordinates[0][0].toFixed(6)}`}
+                      From: {
+                        locationNames[`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`] || 
+                        `${ride.route.coordinates[0][1].toFixed(6)}, ${ride.route.coordinates[0][0].toFixed(6)}`
+                      }
                     </div>
                     <div>
-                      To: {locationNames[`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`] || 
-                           `${ride.route.coordinates[1][1].toFixed(6)}, ${ride.route.coordinates[1][0].toFixed(6)}`}
+                      To: {
+                        locationNames[`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`] || 
+                        `${ride.route.coordinates[1][1].toFixed(6)}, ${ride.route.coordinates[1][0].toFixed(6)}`
+                      }
                     </div>
                   </div>
                 </RideInfo>

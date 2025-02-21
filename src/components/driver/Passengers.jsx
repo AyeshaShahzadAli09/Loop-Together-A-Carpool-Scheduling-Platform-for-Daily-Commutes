@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { FaUser, FaPhone, FaVenusMars, FaCheck, FaTimes, FaClock, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaDollarSign, FaCar } from 'react-icons/fa';
 import RouteMap from '../maps/RouteMap';
+import { reverseGeocodeWithDelay } from '../../utils/geocoding';
 
 const Container = styled.div`
   padding: 2rem;
@@ -246,10 +247,56 @@ const Passengers = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [locationNames, setLocationNames] = useState({});
 
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  useEffect(() => {
+    const fetchLocationNames = async () => {
+      const newLocationNames = {};
+      const uniqueLocations = new Set();
+      
+      // Collect all unique coordinates from ride requests
+      requests.forEach(request => {
+        if (request.carpool?.route?.coordinates) {
+          const coords = request.carpool.route.coordinates;
+          uniqueLocations.add(`${coords[0][1]},${coords[0][0]}`);
+          uniqueLocations.add(`${coords[1][1]},${coords[1][0]}`);
+        }
+      });
+
+      // Filter out coordinates we already have
+      const locationsToFetch = Array.from(uniqueLocations)
+        .filter(coordKey => !locationNames[coordKey]);
+
+      // Fetch in parallel with a maximum of 4 concurrent requests
+      const batchSize = 4;
+      for (let i = 0; i < locationsToFetch.length; i += batchSize) {
+        const batch = locationsToFetch.slice(i, i + batchSize);
+        const promises = batch.map(coordKey => {
+          const [lat, lng] = coordKey.split(',').map(Number);
+          return reverseGeocodeWithDelay(lat, lng)
+            .then(name => ({ coordKey, name }))
+            .catch(() => ({ coordKey, name: coordKey }));
+        });
+
+        const results = await Promise.all(promises);
+        results.forEach(({ coordKey, name }) => {
+          newLocationNames[coordKey] = name;
+        });
+      }
+
+      if (Object.keys(newLocationNames).length > 0) {
+        setLocationNames(prev => ({ ...prev, ...newLocationNames }));
+      }
+    };
+
+    if (requests.length > 0) {
+      fetchLocationNames();
+    }
+  }, [requests]);
 
   const fetchRequests = async () => {
     try {
@@ -468,8 +515,14 @@ const Passengers = () => {
               <RideInfo>
                 <FaMapMarkerAlt />
                 <div>
-                  <div><strong>From: </strong>{selectedRequest.carpool.route.coordinates[0][1].toFixed(6)}</div>
-                  <div><strong>To: </strong>{selectedRequest.carpool.route.coordinates[1][1].toFixed(6)}</div>
+                  <div>From: {
+                    locationNames[`${selectedRequest.carpool.route.coordinates[0][1]},${selectedRequest.carpool.route.coordinates[0][0]}`] || 
+                      `${selectedRequest.carpool.route.coordinates[0][1].toFixed(6)}, ${selectedRequest.carpool.route.coordinates[0][0].toFixed(6)}`
+                  }</div>
+                  <div>To: {
+                    locationNames[`${selectedRequest.carpool.route.coordinates[1][1]},${selectedRequest.carpool.route.coordinates[1][0]}`] || 
+                      `${selectedRequest.carpool.route.coordinates[1][1].toFixed(6)}, ${selectedRequest.carpool.route.coordinates[1][0].toFixed(6)}`
+                  }</div>
                 </div>
               </RideInfo>
 
