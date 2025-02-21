@@ -27,7 +27,18 @@ const MessageList = styled.div`
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
+
+  /* Ensure proper message alignment */
+  & > * {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  /* Add some spacing between messages */
+  & > * + * {
+    margin-top: 0.5rem;
+  }
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -45,24 +56,30 @@ const MessageList = styled.div`
 
 const MessageContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
+  margin-bottom: 1rem;
   align-self: ${props => props.sent ? 'flex-end' : 'flex-start'};
-  margin-bottom: 0.5rem;
   flex-direction: ${props => props.sent ? 'row-reverse' : 'row'};
+  max-width: 80%;
+  width: fit-content;
+  margin-left: ${props => props.sent ? 'auto' : '0'};
+  margin-right: ${props => props.sent ? '0' : 'auto'};
 `;
 
 const Message = styled(motion.div)`
-  max-width: 70%;
   padding: 0.75rem 1rem;
   border-radius: 15px;
-  background: ${props => props.sent ? 'rgba(255, 0, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
+  background: ${props => props.sent ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
   color: #fff;
   position: relative;
   word-break: break-word;
+  min-width: 100px;
   
+  border-top-left-radius: ${props => props.sent ? '15px' : '5px'};
+  border-top-right-radius: ${props => props.sent ? '5px' : '15px'};
   border-bottom-right-radius: ${props => props.sent ? '5px' : '15px'};
-  border-bottom-left-radius: ${props => !props.sent ? '5px' : '15px'};
+  border-bottom-left-radius: ${props => props.sent ? '15px' : '5px'};
 `;
 
 const InputArea = styled.form`
@@ -113,13 +130,15 @@ const Avatar = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: ${props => props.sent ? 'rgba(255, 0, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
+  background: ${props => props.sent ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   color: #fff;
   font-size: 0.8rem;
+  flex-shrink: 0;
+  margin: ${props => props.sent ? '0 0 0 8px' : '0 8px 0 0'};
 `;
 
 const Messages = ({ isDriverMode }) => {
@@ -154,6 +173,17 @@ const Messages = ({ isDriverMode }) => {
 
       const data = await response.json();
       if (data.success) {
+        console.log('Message alignment debug:', {
+          currentUser: user,
+          isDriverMode,
+          messages: data.data.map(msg => ({
+            content: msg.content,
+            senderId: msg.sender._id,
+            senderName: msg.sender.name,
+            isCurrentUser: String(msg.sender._id) === String(user._id)
+          }))
+        });
+        
         setSelectedChat(prev => ({
           ...prev,
           messages: data.data
@@ -218,15 +248,27 @@ const Messages = ({ isDriverMode }) => {
             <AnimatePresence>
               {selectedChat.messages ? (
                 selectedChat.messages.map(msg => {
-                  const isSentByUser = msg.sender._id === user._id;
-                  const senderName = isSentByUser 
-                    ? user.name 
-                    : selectedChat.participants.find(p => p._id !== user._id)?.name || 'User';
-                  
+                  if (!msg.sender || !msg.sender._id) {
+                    console.error('Message sender data not properly populated:', msg);
+                    return null;
+                  }
+
+                  const currentUserId = String(user._id);
+                  const senderId = String(msg.sender._id);
+                  const isSentByUser = currentUserId === senderId;
+
+                  console.log('Message comparison:', {
+                    currentUserId,
+                    senderId,
+                    isSentByUser,
+                    isDriverMode,
+                    messageContent: msg.content
+                  });
+
                   return (
                     <MessageContainer key={msg._id} sent={isSentByUser}>
                       <Avatar sent={isSentByUser}>
-                        {getInitials(senderName)}
+                        {getInitials(msg.sender.name)}
                       </Avatar>
                       <Message
                         sent={isSentByUser}

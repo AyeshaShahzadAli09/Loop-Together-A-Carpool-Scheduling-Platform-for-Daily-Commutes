@@ -61,21 +61,22 @@ export const initializeChat = async (req, res, next) => {
 export const getChatMessages = async (req, res, next) => {
   try {
     const { chatId } = req.params;
-    const chat = await Chat.findById(chatId);
     
+    // Find chat and verify user is participant
+    const chat = await Chat.findById(chatId);
     if (!chat) {
       throw new ApiError(404, 'Chat not found');
     }
     
-    // Verify user is participant
     if (!chat.participants.includes(req.user._id)) {
-      throw new ApiError(403, 'Not authorized to access these messages');
+      throw new ApiError(403, 'Not authorized to view these messages');
     }
     
+    // Get messages with populated sender information
     const messages = await Message.find({ chat: chatId })
-      .sort('createdAt')
-      .populate('sender', 'name profilePicture');
-      
+      .populate('sender', 'name _id')  // Make sure we populate both name and _id
+      .sort('createdAt');
+    
     res.status(200).json({
       success: true,
       data: messages
@@ -111,7 +112,9 @@ export const sendMessage = async (req, res, next) => {
     chat.lastMessage = message._id;
     await chat.save();
     
-    const populatedMessage = await message.populate('sender', 'name profilePicture');
+    // Populate sender information before sending response
+    const populatedMessage = await Message.findById(message._id)
+      .populate('sender', 'name _id');
     
     res.status(201).json({
       success: true,
