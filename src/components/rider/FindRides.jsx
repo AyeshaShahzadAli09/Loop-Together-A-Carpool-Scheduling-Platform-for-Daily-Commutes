@@ -559,19 +559,19 @@ const FindRides = () => {
                   <h3>Route Information</h3>
                   <Coordinate>
                     <FaMapMarkerAlt className="text-green-400" />
-                    <div>
-                      <div className="text-sm">From:</div>
-                      {selectedRideDetails.route.coordinates[0][1].toFixed(6)}, 
-                      {selectedRideDetails.route.coordinates[0][0].toFixed(6)}
-                    </div>
+                    <LocationDisplay 
+                      lat={selectedRideDetails.route.coordinates[0][1]} 
+                      lng={selectedRideDetails.route.coordinates[0][0]} 
+                      type="from" 
+                    />
                   </Coordinate>
                   <Coordinate>
                     <FaMapMarkerAlt className="text-red-400" />
-                    <div>
-                      <div className="text-sm">To:</div>
-                      {selectedRideDetails.route.coordinates[1][1].toFixed(6)}, 
-                      {selectedRideDetails.route.coordinates[1][0].toFixed(6)}
-                    </div>
+                    <LocationDisplay 
+                      lat={selectedRideDetails.route.coordinates[1][1]} 
+                      lng={selectedRideDetails.route.coordinates[1][0]} 
+                      type="to" 
+                    />
                   </Coordinate>
                 </RouteDetails>
 

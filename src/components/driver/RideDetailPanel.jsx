@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FaCalendarAlt, FaClock, FaUsers, FaDollarSign, FaMapMarkerAlt } from 'react-icons/fa';
 import { format } from 'date-fns';
 import RouteMap from '../maps/RouteMap';
+import LocationDisplay from '../common/LocationDisplay';
 
 // Added new header container for the Close button
 const PanelHeader = styled.div`
@@ -141,8 +142,8 @@ const RideDetailPanel = ({ ride, onClose }) => {
           <div>
             <div>Route:</div>
             <div>
-              From: {startPoint.lat.toFixed(6)}, {startPoint.lng.toFixed(6)}<br />
-              To: {endPoint.lat.toFixed(6)}, {endPoint.lng.toFixed(6)}
+              <LocationDisplay lat={startPoint.lat} lng={startPoint.lng} type="from" />
+              <LocationDisplay lat={endPoint.lat} lng={endPoint.lng} type="to" />
             </div>
           </div>
         </InfoItem>
