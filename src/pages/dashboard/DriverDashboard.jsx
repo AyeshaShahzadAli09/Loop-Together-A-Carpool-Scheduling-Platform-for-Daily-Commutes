@@ -12,6 +12,9 @@ import ScheduledRides from '../../components/driver/ScheduledRides';
 import RideDetailPanel from '../../components/driver/RideDetailPanel';
 import Passengers from '../../components/driver/Passengers';
 import Messages from '../../components/shared/Messages';
+import NotificationsPanel from '../../components/dashboard/NotificationsPanel';
+import { Bell } from 'lucide-react';
+import { useNotifications } from '../../context/NotificationContext';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -129,11 +132,12 @@ const StatCard = styled(motion.div)`
   }
 `;
 
-const DriverDashboard = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+const DriverDashboard = ({ initialTab = null }) => {
+  const [activeTab, setActiveTab] = useState(initialTab || 'dashboard');
   const [selectedRide, setSelectedRide] = useState(null);
   const navigate = useNavigate();
   const { dispatch } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const handleLogout = () => {
     localStorage.removeItem('userToken');
@@ -201,7 +205,27 @@ const DriverDashboard = () => {
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.95 }}
         >
-          <MdNotifications /> Notifications
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Bell /> 
+            <span style={{ marginLeft: '8px' }}>Notifications</span>
+            {unreadCount > 0 && (
+              <div style={{
+                position: 'absolute',
+                right: '-20px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </div>
+            )}
+          </div>
         </NavItem>
         <NavItem
           active={activeTab === 'profile'}
@@ -302,6 +326,8 @@ const DriverDashboard = () => {
           </>
         ) : activeTab === 'passengers' ? (
           <Passengers />
+        ) : activeTab === 'notifications' ? (
+          <NotificationsPanel />
         ) : (
           <>
             <WelcomeCard

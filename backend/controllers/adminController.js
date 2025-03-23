@@ -1,6 +1,7 @@
 import Verification from '../models/Verification.js';
 import User from '../models/User.js';
 import { createError } from '../utils/error.js';
+import notificationService from '../services/notificationService.js';
 
 export const getVerificationRequests = async (req, res, next) => {
   try {
@@ -55,6 +56,13 @@ export const updateVerificationStatus = async (req, res, next) => {
         isVerified: true
       });
     }
+    
+    // Create notification for the user about their verification status
+    await notificationService.verificationNotification(
+      verification.user,
+      'driver_license',
+      status.toLowerCase()
+    );
 
     res.json({
       success: true,

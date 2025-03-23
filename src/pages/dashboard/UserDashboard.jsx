@@ -5,10 +5,12 @@ import { FaRoute, FaCalendarAlt, FaComments, FaHistory, FaSignOutAlt, FaUser } f
 import { MdDashboard, MdNotifications } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 import ProfileSection from '../../components/profile/ProfileSection';
 import FindRidesSection from '../../components/rider/FindRides';
 import ScheduledRides from '../../components/rider/ScheduledRides';
 import Messages from '../../components/shared/Messages';
+import NotificationsPanel from '../../components/dashboard/NotificationsPanel';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -99,10 +101,11 @@ const ActionCard = styled(motion.div)`
   }
 `;
 
-const UserDashboard = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+const UserDashboard = ({ initialTab = null }) => {
+  const [activeTab, setActiveTab] = useState(initialTab || 'dashboard');
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const handleLogout = () => {
     logout();
@@ -158,7 +161,27 @@ const UserDashboard = () => {
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.95 }}
         >
-          <MdNotifications /> Notifications
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <MdNotifications /> 
+            <span style={{ marginLeft: '8px' }}>Notifications</span>
+            {unreadCount > 0 && (
+              <div style={{
+                position: 'absolute',
+                right: '-20px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </div>
+            )}
+          </div>
         </NavItem>
         <NavItem
           active={activeTab === 'profile'}
@@ -188,6 +211,8 @@ const UserDashboard = () => {
           <FindRidesSection />
         ) : activeTab === 'schedule' ? (
           <ScheduledRides />
+        ) : activeTab === 'notifications' ? (
+          <NotificationsPanel />
         ) : (
           <>
             <WelcomeCard

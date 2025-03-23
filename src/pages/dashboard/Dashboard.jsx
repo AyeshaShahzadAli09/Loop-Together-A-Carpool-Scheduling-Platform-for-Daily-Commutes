@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import UserDashboard from './UserDashboard';
 import DriverDashboard from './DriverDashboard';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
+import NotificationBell from '../../components/common/NotificationBell';
 import DriverVerificationForm from '../../components/driver/DriverVerificationForm';
 
 const DashboardContainer = styled.div`
@@ -56,6 +58,12 @@ const TaglineContainer = styled(motion.div)`
   font-size: 1.1rem;
   font-style: italic;
   letter-spacing: 0.5px;
+`;
+
+const HeaderActionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 `;
 
 const RoleSwitcher = styled(motion.button)`
@@ -116,8 +124,9 @@ const Toast = styled(motion.div)`
   border: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
-const Dashboard = () => {
+const Dashboard = ({ initialTab = null }) => {
   const { user } = useAuth();
+  const { switchMode } = useNotifications();
   const [isDriverMode, setIsDriverMode] = useState(false);
   const [currentTagline, setCurrentTagline] = useState('');
   const [showVerificationForm, setShowVerificationForm] = useState(false);
@@ -137,7 +146,9 @@ const Dashboard = () => {
   useEffect(() => {
     // Update tagline when mode changes
     setCurrentTagline(getRandomTagline(isDriverMode ? driverTaglines : userTaglines));
-  }, [isDriverMode]);
+    // Update notification context with current mode
+    switchMode(isDriverMode ? 'driver' : 'rider');
+  }, [isDriverMode, switchMode]);
 
   const handleModeSwitch = () => {
     if (!user.isDriver) {
@@ -172,13 +183,17 @@ const Dashboard = () => {
           {currentTagline}
         </TaglineContainer>
 
-        <RoleSwitcher
-          onClick={handleModeSwitch}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Switch to {isDriverMode ? 'User' : 'Driver'} Mode
-        </RoleSwitcher>
+        <HeaderActionsContainer>
+          <NotificationBell />
+          
+          <RoleSwitcher
+            onClick={handleModeSwitch}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Switch to {isDriverMode ? 'User' : 'Driver'} Mode
+          </RoleSwitcher>
+        </HeaderActionsContainer>
       </RoleSwitcherContainer>
       
       <DashboardContent
@@ -187,7 +202,11 @@ const Dashboard = () => {
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
       >
-        {isDriverMode ? <DriverDashboard /> : <UserDashboard />}
+        {isDriverMode ? (
+          <DriverDashboard initialTab={initialTab} />
+        ) : (
+          <UserDashboard initialTab={initialTab} />
+        )}
       </DashboardContent>
 
       <AnimatePresence>

@@ -1,5 +1,7 @@
 import { Carpool } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
+import RideRequest from '../models/RideRequest.js';
+import notificationService from '../services/notificationService.js';
 
 export const createCarpool = async (req, res, next) => {
   try {
@@ -59,14 +61,41 @@ export const getCarpools = async (req, res, next) => {
 
 export const updateCarpool = async (req, res, next) => {
   try {
+    // Find the carpool before updating
+    const originalCarpool = await Carpool.findById(req.params.id);
+    
+    if (!originalCarpool) {
+      throw new ApiError(404, 'Carpool not found');
+    }
+    
+    // Check if user is the driver
+    if (originalCarpool.driver.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, 'Not authorized to update this carpool');
+    }
+
     const carpool = await Carpool.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
       { new: true, runValidators: true }
     );
 
-    if (!carpool) {
-      throw new ApiError(404, 'Carpool not found');
+    // Find all passengers with accepted ride requests
+    const acceptedRequests = await RideRequest.find({
+      carpool: carpool._id,
+      status: 'Accepted'
+    });
+    
+    const passengerIds = acceptedRequests.map(request => request.passenger);
+    
+    // Create notifications for all passengers
+    if (passengerIds.length > 0) {
+      await notificationService.carpoolNotification(
+        carpool,
+        carpool.driver,
+        passengerIds,
+        'modified',
+        req.user._id
+      );
     }
 
     res.status(200).json({
@@ -80,10 +109,37 @@ export const updateCarpool = async (req, res, next) => {
 
 export const deleteCarpool = async (req, res, next) => {
   try {
-    const carpool = await Carpool.findByIdAndDelete(req.params.id);
+    const carpool = await Carpool.findById(req.params.id);
 
     if (!carpool) {
       throw new ApiError(404, 'Carpool not found');
+    }
+    
+    // Check if user is the driver
+    if (carpool.driver.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, 'Not authorized to delete this carpool');
+    }
+    
+    // Find all passengers with accepted ride requests
+    const acceptedRequests = await RideRequest.find({
+      carpool: carpool._id,
+      status: 'Accepted'
+    });
+    
+    const passengerIds = acceptedRequests.map(request => request.passenger);
+    
+    // Delete the carpool
+    await Carpool.findByIdAndDelete(req.params.id);
+    
+    // Create notifications for all passengers
+    if (passengerIds.length > 0) {
+      await notificationService.carpoolNotification(
+        carpool,
+        carpool.driver,
+        passengerIds,
+        'canceled',
+        req.user._id
+      );
     }
 
     res.status(200).json({

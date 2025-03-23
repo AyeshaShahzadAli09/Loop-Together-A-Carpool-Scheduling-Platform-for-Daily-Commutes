@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { Suspense, lazy } from "react";
 import Loader from "./ui/Loader";
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import PrivateRoute from './components/common/PrivateRoute';
@@ -17,6 +18,7 @@ const AboutUs = lazy(() => import("./Footer Pages/AboutUs"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const SignUp = lazy(() => import("./pages/auth/SignUp"));
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
+const NotificationsPage = lazy(() => import("./pages/Notifications/NotificationsPage"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -37,7 +39,9 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <NotificationProvider>
+        <AppContent />
+      </NotificationProvider>
     </AuthProvider>
   );
 }
@@ -68,6 +72,16 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          
+          {/* Notification routes */}
+          <Route
+            path="/:mode/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -77,6 +91,16 @@ function AppContent() {
               <PrivateRoute>
                 <AdminDashboard />
               </PrivateRoute>
+            } 
+          />
+
+          {/* Add this route if needed: */}
+          <Route 
+            path="/:mode/dashboard/notifications" 
+            element={
+              <ProtectedRoute>
+                <Dashboard initialTab="notifications" />
+              </ProtectedRoute>
             } 
           />
 

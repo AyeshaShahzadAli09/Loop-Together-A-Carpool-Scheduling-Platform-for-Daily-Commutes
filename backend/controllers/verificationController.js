@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import { createError } from '../utils/error.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js'; // You'll need to implement this
 import fs from 'fs';
+import notificationService from '../services/notificationService.js';
 
 export const submitVerification = async (req, res, next) => {
   try {
@@ -59,6 +60,13 @@ export const submitVerification = async (req, res, next) => {
         isDriver: true,
         isVerified: false
       });
+
+      // Create notification for user
+      await notificationService.verificationNotification(
+        req.user._id, 
+        'driver_license', 
+        'pending'
+      );
 
       res.status(201).json({
         success: true,

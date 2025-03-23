@@ -1,6 +1,7 @@
 import RideRequest from '../models/RideRequest.js';
 import Carpool from '../models/Carpool.js';
 import { ApiError } from '../utils/ApiError.js';
+import notificationService from '../services/notificationService.js';
 
 export const createRideRequest = async (req, res, next) => {
   try {
@@ -22,6 +23,14 @@ export const createRideRequest = async (req, res, next) => {
       status: 'Pending', // default
       seatsRequested: seatsRequested
     });
+
+    // Create notification for the driver
+    await notificationService.rideRequestNotification(
+      rideRequest,
+      ride.driver,
+      req.user._id,
+      'requested'
+    );
 
     res.status(201).json({
       success: true,
@@ -98,6 +107,14 @@ export const acceptRideRequest = async (req, res, next) => {
     carpool.availableSeats -= rideRequest.seatsRequested;
     await carpool.save();
 
+    // Create notification for the passenger
+    await notificationService.rideRequestNotification(
+      rideRequest,
+      req.user._id,
+      rideRequest.passenger,
+      'accepted'
+    );
+
     res.status(200).json({
       success: true,
       message: 'Ride request accepted successfully'
@@ -132,6 +149,14 @@ export const rejectRideRequest = async (req, res, next) => {
     // Update ride request status
     rideRequest.status = 'Rejected';
     await rideRequest.save();
+
+    // Create notification for the passenger
+    await notificationService.rideRequestNotification(
+      rideRequest,
+      req.user._id,
+      rideRequest.passenger,
+      'rejected'
+    );
 
     res.status(200).json({
       success: true,
