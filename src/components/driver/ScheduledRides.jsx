@@ -5,6 +5,10 @@ import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaClock, FaFilter } from 'react
 import { format } from 'date-fns';
 import RouteMap from '../maps/RouteMap';
 import { reverseGeocodeWithDelay } from '../../utils/geocoding';
+import ActiveRidePanel from './ActiveRidePanel';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { API_URL, apiRequest } from '../../config';
 
 const PageContainer = styled(motion.div)`
   padding: 2rem;
@@ -161,6 +165,27 @@ const SeatsTag = styled.div`
   font-size: 0.9rem;
 `;
 
+const RideActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+`;
+
+const ActionButton = styled.button`
+  background: ${props => props.primary ? '#4ade80' : 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${props => props.primary ? '#4ade80' : 'rgba(255, 255, 255, 0.1)'};
+  color: ${props => props.primary ? '#fff' : '#fff'};
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${props => props.primary ? 'rgba(74, 222, 128, 0.1)' : 'rgba(255, 255, 255, 0.08)'};
+  }
+`;
+
 const ScheduledRides = ({ onRideSelect }) => {
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -174,6 +199,8 @@ const ScheduledRides = ({ onRideSelect }) => {
   const [filterPrice, setFilterPrice] = useState('');
 
   const [locationNames, setLocationNames] = useState({});
+  const [activeRide, setActiveRide] = useState(null);
+  const [showActiveRidePanel, setShowActiveRidePanel] = useState(false);
 
   useEffect(() => {
     fetchRides();
@@ -312,6 +339,31 @@ const ScheduledRides = ({ onRideSelect }) => {
     // Optionally, you could scroll or add transition effects here.
   };
 
+  const handleStartRide = async (ride) => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.put(apiRequest(`rides/start/${ride._id}`), {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success('Ride started successfully');
+      setActiveRide(response.data.data);
+      setShowActiveRidePanel(true);
+      
+      // Refresh the rides list after starting
+      fetchRides();
+    } catch (error) {
+      toast.error('Failed to start ride');
+      console.error(error);
+    }
+  };
+
+  const handleRideComplete = () => {
+    setActiveRide(null);
+    setShowActiveRidePanel(false);
+    fetchRides();
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -392,83 +444,114 @@ const ScheduledRides = ({ onRideSelect }) => {
         </FilterMenu>
       )}
 
-      <RideGrid>
-        <AnimatePresence>
-          {filteredRides.map(ride => {
-            // NEW: Compute start and end points from the ride coordinates
-            const startPoint = {
-              lat: ride.route.coordinates[0][1],
-              lng: ride.route.coordinates[0][0]
-            };
-            const endPoint = {
-              lat: ride.route.coordinates[1][1],
-              lng: ride.route.coordinates[1][0]
-            };
+      {showActiveRidePanel ? (
+        <ActiveRidePanel
+          ride={activeRide}
+          onClose={() => setShowActiveRidePanel(false)}
+          onRideComplete={handleRideComplete}
+        />
+      ) : (
+        <RideGrid>
+          <AnimatePresence>
+            {filteredRides.map(ride => {
+              // NEW: Compute start and end points from the ride coordinates
+              const startPoint = {
+                lat: ride.route.coordinates[0][1],
+                lng: ride.route.coordinates[0][0]
+              };
+              const endPoint = {
+                lat: ride.route.coordinates[1][1],
+                lng: ride.route.coordinates[1][0]
+              };
 
-            return (
-              <RideCard
-                key={ride._id}
-                onClick={() => handleRideClick(ride)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <StatusBadge status={ride.status}>
-                  {ride.status.charAt(0).toUpperCase() + ride.status.slice(1)}
-                </StatusBadge>
-                
-                <RideInfo highlight>
-                  <FaCalendarAlt />
-                  {format(new Date(ride.schedule[0].departureTime), 'PPP')}
-                </RideInfo>
-                
-                <RideInfo>
-                  <FaClock />
-                  {format(new Date(ride.schedule[0].departureTime), 'p')}
-                </RideInfo>
+              return (
+                <RideCard
+                  key={ride._id}
+                  onClick={() => handleRideClick(ride)}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <StatusBadge status={ride.status}>
+                    {ride.status.charAt(0).toUpperCase() + ride.status.slice(1)}
+                  </StatusBadge>
+                  
+                  <RideInfo highlight>
+                    <FaCalendarAlt />
+                    {format(new Date(ride.schedule[0].departureTime), 'PPP')}
+                  </RideInfo>
+                  
+                  <RideInfo>
+                    <FaClock />
+                    {format(new Date(ride.schedule[0].departureTime), 'p')}
+                  </RideInfo>
 
-                {/* 
-                  Updated: Render the map preview using RouteMap.
-                  We pass readOnly and a height prop (small height for preview) 
-                */}
-                <RoutePreview>
-                  <RouteMap 
-                    startPoint={startPoint} 
-                    endPoint={endPoint} 
-                    readOnly 
-                    height="100px" 
-                  />
-                </RoutePreview>
+                  {/* 
+                    Updated: Render the map preview using RouteMap.
+                    We pass readOnly and a height prop (small height for preview) 
+                  */}
+                  <RoutePreview>
+                    <RouteMap 
+                      startPoint={startPoint} 
+                      endPoint={endPoint} 
+                      readOnly 
+                      height="100px" 
+                    />
+                  </RoutePreview>
 
-                <RideInfo>
-                  <FaMapMarkerAlt />
-                  <div>
+                  <RideInfo>
+                    <FaMapMarkerAlt />
                     <div>
-                      From: {
-                        locationNames[`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`] || 
-                        `${ride.route.coordinates[0][1].toFixed(6)}, ${ride.route.coordinates[0][0].toFixed(6)}`
-                      }
+                      <div>
+                        From: {
+                          locationNames[`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`] || 
+                          `${ride.route.coordinates[0][1].toFixed(6)}, ${ride.route.coordinates[0][0].toFixed(6)}`
+                        }
+                      </div>
+                      <div>
+                        To: {
+                          locationNames[`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`] || 
+                          `${ride.route.coordinates[1][1].toFixed(6)}, ${ride.route.coordinates[1][0].toFixed(6)}`
+                        }
+                      </div>
                     </div>
-                    <div>
-                      To: {
-                        locationNames[`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`] || 
-                        `${ride.route.coordinates[1][1].toFixed(6)}, ${ride.route.coordinates[1][0].toFixed(6)}`
-                      }
-                    </div>
-                  </div>
-                </RideInfo>
+                  </RideInfo>
 
-                <DetailsContainer>
-                  <PriceTag>PKR {ride.pricePerSeat}</PriceTag>
-                  <SeatsTag>Min Seats: {ride.availableSeats}</SeatsTag>
-                </DetailsContainer>
-              </RideCard>
-            );
-          })}
-        </AnimatePresence>
-      </RideGrid>
+                  <DetailsContainer>
+                    <PriceTag>PKR {ride.pricePerSeat}</PriceTag>
+                    <SeatsTag>Min Seats: {ride.availableSeats}</SeatsTag>
+                  </DetailsContainer>
+
+                  <RideActions>
+                    <ActionButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRideClick(ride);
+                      }}
+                    >
+                      View Details
+                    </ActionButton>
+                    
+                    {ride.status === 'Scheduled' && (
+                      <ActionButton
+                        primary
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartRide(ride);
+                        }}
+                      >
+                        Start Ride
+                      </ActionButton>
+                    )}
+                  </RideActions>
+                </RideCard>
+              );
+            })}
+          </AnimatePresence>
+        </RideGrid>
+      )}
     </PageContainer>
   );
 };

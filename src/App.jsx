@@ -6,6 +6,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import PrivateRoute from './components/common/PrivateRoute';
+import RateRideForm from './components/rider/RateRideForm';
 
 // Lazy-loaded components
 const AppLayout = lazy(() => import("./ui/AppLayout"));
@@ -103,6 +104,9 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+
+          {/* New route for rating */}
+          <Route path="/rider/rate/:rideId" element={<RateRideForm />} />
 
           {/* Fallback route */}
           <Route path="*" element={<PageNotFound />} />

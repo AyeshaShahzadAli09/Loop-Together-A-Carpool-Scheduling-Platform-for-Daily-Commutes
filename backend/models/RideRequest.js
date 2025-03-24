@@ -13,13 +13,16 @@ const rideRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Accepted', 'Rejected'],
+    enum: ['Pending', 'Accepted', 'Rejected', 'Cancelled', 'PickedUp', 'Completed'],
     default: 'Pending'
   },
   seatsRequested: {
     type: Number,
     min: 1,
     required: true
+  },
+  pickupTime: {
+    type: Date
   }
 }, {
   timestamps: true

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNotifications } from '../../context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Trash2, Bell, AlertCircle, Info, MessageSquare, Calendar, CreditCard } from 'lucide-react';
+import { Check, Trash2, Bell, AlertCircle, Info, MessageSquare, Calendar, CreditCard, Car, Star, ThumbsUp } from 'lucide-react';
 import styled from 'styled-components';
 
 const NotificationsPanel = () => {
@@ -59,6 +59,12 @@ const NotificationsPanel = () => {
         return <CreditCard className="h-5 w-5" />;
       case 'Reminder':
         return <Bell className="h-5 w-5" />;
+      case 'RideUpdate':
+        return <Car className="h-5 w-5" />;
+      case 'RateRide':
+        return <Star className="h-5 w-5" />;
+      case 'Rating':
+        return <ThumbsUp className="h-5 w-5" />;
       default:
         return <Info className="h-5 w-5" />;
     }

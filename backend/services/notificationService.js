@@ -189,6 +189,48 @@ class NotificationService {
     }
   }
 
+  /**
+   * Get ride update message for rider
+   * @param {String} status - Status of the ride
+   */
+  _getRideUpdateMessageForRider(status) {
+    const messages = {
+      'started': 'Your ride has started! The driver is on the way.',
+      'picked_up': 'You have been picked up by the driver.',
+      'completed': 'Your ride has been completed. Please rate your experience!'
+    };
+    return messages[status] || null;
+  }
+
+  /**
+   * Generate ride update notifications
+   * @param {Object} ride - The ride object
+   * @param {String} riderId - ID of the rider
+   * @param {String} status - Status of the ride update
+   */
+  async rideUpdateNotification(ride, riderId, status) {
+    try {
+      const riderMsg = this._getRideUpdateMessageForRider(status);
+      
+      if (riderMsg) {
+        await this.createNotification({
+          user: riderId,
+          message: riderMsg,
+          type: 'RideUpdate',
+          mode: 'rider',
+          relatedEntity: ride._id,
+          refModel: 'Carpool',
+          actionRequired: status === 'completed',
+          actionLink: status === 'completed' 
+            ? `/rider/rate/${ride._id}` 
+            : `/rider/rides/${ride._id}`
+        });
+      }
+    } catch (error) {
+      console.error('Error generating ride update notifications:', error);
+    }
+  }
+
   // Private helper methods for generating messages
   _getRideRequestMessageForDriver(status) {
     switch (status) {

@@ -5,7 +5,10 @@ import {
   acceptRideRequest, 
   rejectRideRequest,
   getRidePassengers,
-  getUserRideRequests
+  getUserRideRequests,
+  // createRideRequest,
+  // updateRideRequestStatus,
+  getRiderRideRequests
 } from '../controllers/rideRequestController.js';
 
 const router = express.Router();
@@ -18,5 +21,11 @@ router.get('/ride/:rideId/passengers', getRidePassengers);
 router.put('/:requestId/accept', acceptRideRequest);
 router.put('/:requestId/reject', rejectRideRequest);
 router.get('/user', getUserRideRequests);
+
+// Get passengers for a specific ride
+router.get('/ride-passengers/:rideId', getRidePassengers);
+
+// Add this route for rider's ride requests
+router.get('/rider', getRiderRideRequests);
 
 export default router; 

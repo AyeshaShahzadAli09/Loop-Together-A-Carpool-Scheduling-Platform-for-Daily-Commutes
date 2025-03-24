@@ -167,11 +167,11 @@ export const rejectRideRequest = async (req, res, next) => {
   }
 };
 
-// Get accepted passengers for a specific ride
+// Get passengers for a specific ride
 export const getRidePassengers = async (req, res, next) => {
   try {
     const { rideId } = req.params;
-
+    
     // Verify this driver owns the carpool
     const carpool = await Carpool.findOne({
       _id: rideId,
@@ -179,15 +179,14 @@ export const getRidePassengers = async (req, res, next) => {
     });
 
     if (!carpool) {
-      throw new ApiError(403, 'Not authorized to view this ride\'s passengers');
+      throw new ApiError(403, 'Not authorized to view passengers for this ride');
     }
 
+    // Find all passengers for this ride
     const passengers = await RideRequest.find({
       carpool: rideId,
-      status: 'Accepted'
-    })
-    .populate('passenger', 'name profilePicture gender phoneNumber')
-    .sort('-createdAt');
+      status: { $in: ['Accepted', 'PickedUp'] }
+    }).populate('passenger', 'name gender profilePicture');
 
     res.status(200).json({
       success: true,
@@ -214,6 +213,31 @@ export const getUserRideRequests = async (req, res, next) => {
       }
     })
     .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      data: rideRequests
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get all ride requests for the current rider
+export const getRiderRideRequests = async (req, res, next) => {
+  try {
+    // Find all ride requests where this user is the passenger
+    const rideRequests = await RideRequest.find({
+      passenger: req.user._id
+    })
+    .populate({
+      path: 'carpool',
+      populate: {
+        path: 'driver',
+        select: 'name profilePicture'
+      }
+    })
+    .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,

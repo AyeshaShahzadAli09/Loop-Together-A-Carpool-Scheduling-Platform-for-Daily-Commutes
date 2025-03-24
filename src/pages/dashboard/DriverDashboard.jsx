@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaCarAlt, FaCalendarAlt, FaComments, FaHistory, FaUsers, FaUser } from 'react-icons/fa';
+import { FaCarAlt, FaCalendarAlt, FaComments, FaHistory, FaUsers, FaUser, FaStar } from 'react-icons/fa';
 import { MdDashboard, MdNotifications } from 'react-icons/md';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,8 @@ import Messages from '../../components/shared/Messages';
 import NotificationsPanel from '../../components/dashboard/NotificationsPanel';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '../../context/NotificationContext';
+import RatingsPanel from '../../components/driver/RatingsPanel';
+import ActiveRidesPanel from '../../components/driver/ActiveRidesPanel';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -132,6 +134,15 @@ const StatCard = styled(motion.div)`
   }
 `;
 
+const Badge = styled.span`
+  background-color: #ff00ff;
+  color: white;
+  border-radius: 50%;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+`;
+
 const DriverDashboard = ({ initialTab = null }) => {
   const [activeTab, setActiveTab] = useState(initialTab || 'dashboard');
   const [selectedRide, setSelectedRide] = useState(null);
@@ -176,6 +187,14 @@ const DriverDashboard = ({ initialTab = null }) => {
           <FaCalendarAlt /> My Schedule
         </NavItem>
         <NavItem
+          active={activeTab === 'activeRides'}
+          onClick={() => setActiveTab('activeRides')}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaCarAlt /> Active Rides
+        </NavItem>
+        <NavItem
           active={activeTab === 'passengers'}
           onClick={() => setActiveTab('passengers')}
           whileHover={{ x: 5 }}
@@ -192,6 +211,14 @@ const DriverDashboard = ({ initialTab = null }) => {
           <FaComments /> Messages
         </NavItem>
         <NavItem
+          active={activeTab === 'ratings'}
+          onClick={() => setActiveTab('ratings')}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaStar /> My Ratings
+        </NavItem>
+        <NavItem
           active={activeTab === 'history'}
           onClick={() => setActiveTab('history')}
           whileHover={{ x: 5 }}
@@ -205,27 +232,8 @@ const DriverDashboard = ({ initialTab = null }) => {
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.95 }}
         >
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Bell /> 
-            <span style={{ marginLeft: '8px' }}>Notifications</span>
-            {unreadCount > 0 && (
-              <div style={{
-                position: 'absolute',
-                right: '-20px',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                borderRadius: '50%',
-                width: '20px',
-                height: '20px',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </div>
-            )}
-          </div>
+          <Bell /> Notifications
+          {unreadCount > 0 && <Badge>{unreadCount}</Badge>}
         </NavItem>
         <NavItem
           active={activeTab === 'profile'}
@@ -328,6 +336,10 @@ const DriverDashboard = ({ initialTab = null }) => {
           <Passengers />
         ) : activeTab === 'notifications' ? (
           <NotificationsPanel />
+        ) : activeTab === 'activeRides' ? (
+          <ActiveRidesPanel />
+        ) : activeTab === 'ratings' ? (
+          <RatingsPanel />
         ) : (
           <>
             <WelcomeCard

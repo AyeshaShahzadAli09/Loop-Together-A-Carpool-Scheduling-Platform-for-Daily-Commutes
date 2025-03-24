@@ -37,8 +37,14 @@ const carpoolSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Active', 'Cancelled', 'Completed'],
-    default: 'Active'
+    enum: ['Scheduled', 'InProgress', 'Completed', 'Cancelled', 'Active'],
+    default: 'Scheduled'
+  },
+  startTime: {
+    type: Date
+  },
+  endTime: {
+    type: Date
   },
   recurrence: {
     type: String,

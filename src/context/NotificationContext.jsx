@@ -1,11 +1,18 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import * as notificationService from '../services/notificationService';
+import { Car, Star, ThumbsUp } from 'lucide-react';
 
 const NotificationContext = createContext();
 
 export const useNotifications = () => {
   return useContext(NotificationContext);
+};
+
+const notificationTypeIcons = {
+  'RideUpdate': <Car className="h-5 w-5" />,
+  'RateRide': <Star className="h-5 w-5" />,
+  'Rating': <ThumbsUp className="h-5 w-5" />
 };
 
 export const NotificationProvider = ({ children }) => {
