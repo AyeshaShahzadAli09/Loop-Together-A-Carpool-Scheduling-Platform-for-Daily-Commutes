@@ -7,6 +7,9 @@ import RouteMap from '../maps/RouteMap';
 import { useAuth } from '../../context/AuthContext';
 import SeatRequestModal from './SeatRequestModal';
 import LocationDisplay from '../common/LocationDisplay';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { API_URL, apiRequest, getRideStatusForDisplay } from '../../config';
 
 const Container = styled(motion.div)`
   padding: 2rem;
@@ -272,21 +275,33 @@ const FindRides = () => {
   // Fetch available rides from the backend
   const fetchRides = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/rides', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      setLoading(true);
+      const token = localStorage.getItem('userToken');
+      
+      // Update the API call to include both 'Scheduled' and 'Active' statuses
+      const response = await axios.get(apiRequest('rides'), {
+        params: {
+          // Include both new and old status types to ensure all available rides are shown
+          statuses: ['Scheduled', 'Active']
+        },
+        headers: { 
+          Authorization: `Bearer ${token}` 
         }
       });
-      const data = await response.json();
-      if (data.success) {
-        setRides(data.data);
-      } else {
-        console.error('Failed to fetch rides.');
-      }
+
+      // Process the rides to use the new status format
+      const rides = response.data.data.map(ride => ({
+        ...ride,
+        displayStatus: getRideStatusForDisplay(ride.status)
+      }));
+      
+      setRides(rides);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching rides:', error);
+      console.error('Error fetching available rides:', error);
+      toast.error('Failed to load available rides');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

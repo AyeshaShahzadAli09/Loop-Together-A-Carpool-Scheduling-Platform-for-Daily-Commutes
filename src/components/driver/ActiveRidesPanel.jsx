@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaCarAlt, FaClock, FaUsers, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaCarAlt, FaClock, FaUsers, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { API_URL, apiRequest } from '../../config';
@@ -25,7 +25,9 @@ const ActiveRidesPanel = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      setActiveRides(response.data.data);
+      const rides = response.data.data || [];
+      console.log('Active rides loaded:', rides);
+      setActiveRides(rides);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching active rides:', error);
@@ -41,84 +43,94 @@ const ActiveRidesPanel = () => {
   };
 
   const handleManageRide = (ride) => {
+    if (!ride || !ride._id) {
+      console.error('Cannot manage ride: Invalid ride data', ride);
+      toast.error('Cannot manage this ride: Missing ride information');
+      return;
+    }
+    
+    console.log('Managing ride:', ride);
     setSelectedRide(ride);
     setShowActiveRideManager(true);
   };
 
+  const handleBackToList = () => {
+    setSelectedRide(null);
+    setShowActiveRideManager(false);
+  };
+
   return (
-    <Container
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      {showActiveRideManager && selectedRide ? (
-        <ActiveRidePanel
-          ride={selectedRide}
-          onClose={() => setShowActiveRideManager(false)}
-          onRideComplete={handleRideComplete}
-        />
+    <Container>
+      <Title>Active Rides</Title>
+      
+      {loading ? (
+        <LoadingContainer>
+          <LoadingIndicator />
+          <LoadingText>Loading active rides...</LoadingText>
+        </LoadingContainer>
       ) : (
         <>
-          <Header>
-            <Title>Active Rides</Title>
-          </Header>
-
-          {loading ? (
-            <LoadingContainer>
-              <LoadingSpinner />
-              <p>Loading active rides...</p>
-            </LoadingContainer>
-          ) : activeRides.length === 0 ? (
-            <EmptyState>
-              <FaCarAlt size={40} color="rgba(255,255,255,0.2)" />
-              <EmptyMessage>No active rides at the moment</EmptyMessage>
-              <EmptySubMessage>
-                Start one of your scheduled rides to see it here
-              </EmptySubMessage>
-            </EmptyState>
+          {showActiveRideManager && selectedRide ? (
+            <RideManagerContainer>
+              <BackButton onClick={handleBackToList}>
+                <FaArrowLeft /> Back to Active Rides
+              </BackButton>
+              
+              <ActiveRidePanel
+                ride={selectedRide}
+                onClose={handleBackToList}
+                onRideComplete={handleRideComplete}
+              />
+            </RideManagerContainer>
           ) : (
             <RideList>
               <AnimatePresence>
-                {activeRides.map((ride) => (
-                  <RideCard
-                    key={ride._id}
-                    onClick={() => handleManageRide(ride)}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <RideHeader>
-                      <RideTitle>In Progress</RideTitle>
-                      <StartTime>
-                        <FaClock />
-                        Started: {new Date(ride.startTime).toLocaleTimeString()}
-                      </StartTime>
-                    </RideHeader>
-
-                    <RideDetails>
-                      <RideRoute>
-                        <FaMapMarkerAlt />
-                        <RouteText>
-                          <div>{ride.route.from || 'Starting point'}</div>
-                          <div>{ride.route.to || 'Destination'}</div>
-                        </RouteText>
-                      </RideRoute>
-
-                      <RidePassengers>
-                        <FaUsers />
-                        <div>{ride.passengerCount || 0} passengers</div>
-                      </RidePassengers>
-                    </RideDetails>
-
-                    <ManageButton
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
+                {activeRides.length === 0 ? (
+                  <NoRidesMessage>
+                    You have no active rides at the moment.
+                  </NoRidesMessage>
+                ) : (
+                  activeRides.map((ride) => (
+                    <RideCard
+                      key={ride._id}
+                      onClick={() => handleManageRide(ride)}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      Manage Ride
-                    </ManageButton>
-                  </RideCard>
-                ))}
+                      <RideHeader>
+                        <RideTitle>In Progress</RideTitle>
+                        <StartTime>
+                          <FaClock />
+                          Started: {new Date(ride.startTime).toLocaleTimeString()}
+                        </StartTime>
+                      </RideHeader>
+
+                      <RideDetails>
+                        <RideRoute>
+                          <FaMapMarkerAlt />
+                          <RouteText>
+                            <div>{ride.route.from || 'Starting point'}</div>
+                            <div>{ride.route.to || 'Destination'}</div>
+                          </RouteText>
+                        </RideRoute>
+
+                        <RidePassengers>
+                          <FaUsers />
+                          <div>{ride.passengerCount || 0} passengers</div>
+                        </RidePassengers>
+                      </RideDetails>
+
+                      <ManageButton
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        Manage Ride
+                      </ManageButton>
+                    </RideCard>
+                  ))
+                )}
               </AnimatePresence>
             </RideList>
           )}
@@ -128,28 +140,81 @@ const ActiveRidesPanel = () => {
   );
 };
 
-const Container = styled(motion.div)`
-  background: rgba(15, 23, 42, 0.3);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2rem;
+const Container = styled.div`
+  padding: 20px;
   height: 100%;
+  width: 100%;
+  overflow-y: auto;
+`;
+
+const Title = styled.h1`
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: white;
+`;
+
+const LoadingContainer = styled.div`
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(10px);
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  justify-content: center;
+  height: 300px;
 `;
 
-const Title = styled.h2`
-  font-size: 1.75rem;
-  color: #fff;
-  margin: 0;
+const LoadingIndicator = styled.div`
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #ff00ff;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.div`
+  margin-top: 16px;
+  color: white;
+  font-size: 16px;
+`;
+
+const RideManagerContainer = styled.div`
+  width: 100%;
+  height: 100%;
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const NoRidesMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-top: 20px;
 `;
 
 const RideList = styled.div`
@@ -253,51 +318,6 @@ const ManageButton = styled(motion.button)`
   &:hover {
     background: rgba(74, 222, 128, 0.3);
   }
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  gap: 1rem;
-  color: rgba(255, 255, 255, 0.7);
-`;
-
-const LoadingSpinner = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid #4ade80;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-const EmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  gap: 1rem;
-`;
-
-const EmptyMessage = styled.p`
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0.5rem 0 0 0;
-`;
-
-const EmptySubMessage = styled.p`
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0;
 `;
 
 export default ActiveRidesPanel; 

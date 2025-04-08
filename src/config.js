@@ -13,4 +13,17 @@ export const apiRequest = (endpoint) => {
   }
   
   return `${API_URL}/${normalizedEndpoint}`;
+};
+
+// Helper function to handle ride status for displaying to riders
+export const getRideStatusForDisplay = (statusFromDatabase) => {
+  const statusMappings = {
+    'Scheduled': 'Upcoming',
+    'InProgress': 'In Progress',
+    'Completed': 'Completed',
+    'Cancelled': 'Cancelled',
+    'Active': 'Available' // For backward compatibility
+  };
+  
+  return statusMappings[statusFromDatabase] || statusFromDatabase;
 }; 

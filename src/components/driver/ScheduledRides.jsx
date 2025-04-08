@@ -347,8 +347,55 @@ const ScheduledRides = ({ onRideSelect }) => {
       });
       
       toast.success('Ride started successfully');
+      
+      // Store the ride data but don't show the panel yet
       setActiveRide(response.data.data);
-      setShowActiveRidePanel(true);
+      
+      // Show a confirmation message instead of immediately opening the panel
+      toast.success('You have started this ride. You can go to the active rides page to view the details or manage the ride.', {
+        duration: 5000
+      });
+      
+      // Add a button to navigate to the active rides page
+      toast.custom((t) => (
+        <div className="toast-custom-container" style={{
+          padding: '12px 20px',
+          background: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <span>Go to Active Rides</span>
+          <button 
+            onClick={() => {
+              toast.dismiss(t.id);
+              // Navigate to the active rides tab
+              if (typeof window !== 'undefined') {
+                // If this component is used in the driver dashboard
+                // This assumes there's a state setter for activeTab in parent component
+                if (typeof props.setActiveTab === 'function') {
+                  props.setActiveTab('activeRides');
+                } else {
+                  // Fallback to direct navigation if needed
+                  window.location.href = '/driver/dashboard/activeRides';
+                }
+              }
+            }}
+            style={{
+              background: '#ff00ff',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            Go Now
+          </button>
+        </div>
+      ), { duration: 10000 });
       
       // Refresh the rides list after starting
       fetchRides();

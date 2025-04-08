@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaCarAlt, FaCalendarAlt, FaComments, FaHistory, FaUsers, FaUser, FaStar } from 'react-icons/fa';
@@ -17,6 +17,9 @@ import { Bell } from 'lucide-react';
 import { useNotifications } from '../../context/NotificationContext';
 import RatingsPanel from '../../components/driver/RatingsPanel';
 import ActiveRidesPanel from '../../components/driver/ActiveRidesPanel';
+import axios from 'axios';
+import { apiRequest } from '../../config';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -149,12 +152,32 @@ const DriverDashboard = ({ initialTab = null }) => {
   const navigate = useNavigate();
   const { dispatch } = useAuth();
   const { unreadCount } = useNotifications();
+  const [activeRideCount, setActiveRideCount] = useState(0);
 
   const handleLogout = () => {
     localStorage.removeItem('userToken');
     dispatch({ type: 'LOGOUT' });
     navigate('/');
   };
+
+  const fetchActiveRideCount = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('rides/active'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setActiveRideCount(response.data.data.length);
+    } catch (error) {
+      console.error('Error fetching active ride count:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveRideCount();
+    const interval = setInterval(fetchActiveRideCount, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <DashboardGrid>
@@ -189,10 +212,14 @@ const DriverDashboard = ({ initialTab = null }) => {
         <NavItem
           active={activeTab === 'activeRides'}
           onClick={() => setActiveTab('activeRides')}
-          whileHover={{ x: 5 }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <FaCarAlt /> Active Rides
+          <FaCarAlt size={20} />
+          Active Rides
+          {activeRideCount > 0 && (
+            <Badge>{activeRideCount}</Badge>
+          )}
         </NavItem>
         <NavItem
           active={activeTab === 'passengers'}
@@ -337,7 +364,29 @@ const DriverDashboard = ({ initialTab = null }) => {
         ) : activeTab === 'notifications' ? (
           <NotificationsPanel />
         ) : activeTab === 'activeRides' ? (
-          <ActiveRidesPanel />
+          <ErrorBoundary
+            fallback={
+              <div style={{ padding: '2rem', textAlign: 'center' }}>
+                <h2>Something went wrong loading active rides</h2>
+                <button 
+                  onClick={() => window.location.reload()}
+                  style={{
+                    background: 'rgba(74, 222, 128, 0.2)',
+                    color: '#4ade80',
+                    border: '1px solid rgba(74, 222, 128, 0.3)',
+                    borderRadius: '6px',
+                    padding: '0.5rem 1rem',
+                    cursor: 'pointer',
+                    marginTop: '1rem'
+                  }}
+                >
+                  Refresh Page
+                </button>
+              </div>
+            }
+          >
+            <ActiveRidesPanel />
+          </ErrorBoundary>
         ) : activeTab === 'ratings' ? (
           <RatingsPanel />
         ) : (
