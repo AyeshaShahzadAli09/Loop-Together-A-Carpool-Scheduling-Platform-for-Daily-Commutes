@@ -1,0 +1,457 @@
+{
+    "ride_matches": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "carpoolId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "userId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "role",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "date",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "time",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "status",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "matchedAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "notifications",
+            "Data Types": [
+                "list"
+            ]
+        },
+        {
+            "Field": "routeId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        }
+    ],
+    "notifications": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "userId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "message",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "type",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "timestamp",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "read",
+            "Data Types": [
+                "bool"
+            ]
+        },
+        {
+            "Field": "relatedEntity",
+            "Data Types": ["ObjectId"],
+            "Description": "Reference to carpool/request ID"
+        },
+        {
+            "Field": "notificationType",
+            "Data Types": ["str"],
+            "Description": "RideRequest/Verification/Cancellation/etc"
+        }
+    ],
+    "feedback": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "carpoolId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "givenBy",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "rating",
+            "Data Types": [
+                "int"
+            ]
+        },
+        {
+            "Field": "comments",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        }
+    ],
+    "route": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "start",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "end",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        }
+    ],
+    "users": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "name",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "email",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "password",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "rides",
+            "Data Types": [
+                "dict"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "updatedAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "gender",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "profilePicture",
+            "Data Types": ["str"],
+            "Description": "URL to profile image storage"
+        },
+        {
+            "Field": "isDriver",
+            "Data Types": ["bool"],
+            "Description": "Flag to indicate driver status"
+        },
+        {
+            "Field": "driverLicense",
+            "Data Types": ["str"],
+            "Description": "Driver's license number (encrypted)"
+        },
+        {
+            "Field": "vehiclePlate",
+            "Data Types": ["str"],
+            "Description": "Vehicle registration plate number"
+        },
+        {
+            "Field": "isVerified",
+            "Data Types": ["bool"],
+            "Description": "Admin verification status"
+        },
+        {
+            "Field": "preferredPaymentMethods",
+            "Data Types": ["list"],
+            "Description": "Array of payment methods (cash, JazzCash, etc)"
+        },
+        {
+            "Field": "isAdmin",
+            "Data Types": ["bool"],
+            "Description": "Flag to identify admin users",
+            "Default": false
+        }
+    ],
+    "chats": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "participants",
+            "Data Types": [
+                "list"
+            ]
+        },
+        {
+            "Field": "carpoolId",
+            "Data Types": ["ObjectId"],
+            "Reference": "carpools._id"
+        },
+        {
+            "Field": "lastMessage",
+            "Data Types": ["ObjectId"],
+            "Reference": "messages._id"
+        }
+    ],
+    "messages": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "chatId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "senderId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "sentAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "status",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "text",
+            "Data Types": [
+                "str"
+            ]
+        }
+    ],
+    "carpools": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "driverId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "schedule",
+            "Data Types": [
+                "list"
+            ]
+        },
+        {
+            "Field": "pricePerSeat",
+            "Data Types": [
+                "int"
+            ]
+        },
+        {
+            "Field": "vehicleType",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "preferredGender",
+            "Data Types": [
+                "str"
+            ]
+        },
+        {
+            "Field": "createdAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "updatedAt",
+            "Data Types": [
+                "datetime"
+            ]
+        },
+        {
+            "Field": "availableSeats",
+            "Data Types": ["int"],
+            "Description": "Number of available seats"
+        },
+        {
+            "Field": "status",
+            "Data Types": ["str"],
+            "Description": "Active/Cancelled/Completed"
+        },
+        {
+            "Field": "recurrence",
+            "Data Types": ["str"],
+            "Description": "Daily/Weekly/Custom schedule"
+        },
+        {
+            "Field": "route",
+            "Data Types": ["GeoJSON"],
+            "Description": "GeoJSON route coordinates"
+        }
+    ],
+    "user_preferences": [
+        {
+            "Field": "_id",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "userId",
+            "Data Types": [
+                "ObjectId"
+            ]
+        },
+        {
+            "Field": "schedule",
+            "Data Types": [
+                "list"
+            ]
+        }
+    ],
+    "ride_requests": [
+        {
+            "Field": "carpoolId",
+            "Data Types": ["ObjectId"],
+            "Reference": "carpools._id"
+        },
+        {
+            "Field": "passengerId",
+            "Data Types": ["ObjectId"],
+            "Reference": "users._id"
+        },
+        {
+            "Field": "status",
+            "Data Types": ["str"],
+            "Description": "Pending/Accepted/Rejected"
+        },
+        {
+            "Field": "requestedAt",
+            "Data Types": ["datetime"]
+        }
+    ],
+    "verification_requests": [
+        {
+            "Field": "userId",
+            "Data Types": ["ObjectId"],
+            "Reference": "users._id"
+        },
+        {
+            "Field": "documents",
+            "Data Types": ["list"],
+            "Description": "Array of document URLs (ID card, license)"
+        },
+        {
+            "Field": "status",
+            "Data Types": ["str"],
+            "Description": "Pending/Approved/Rejected"
+        },
+        {
+            "Field": "processedBy",
+            "Data Types": ["ObjectId"],
+            "Reference": "users._id"
+        }
+    ]
+}
