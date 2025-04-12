@@ -6,22 +6,22 @@
 
 ## Features
 
-- *User Registration and Authentication*: Secure login and profile management.
-- *Intelligent Ride Matching*: Matches users based on schedules, routes, and preferences.
-- *Ride Scheduling*: Schedule carpools up to one week in advance.
-- *In-App Communication*: Real-time chat between matched carpool partners.
-- *Notifications*: Alerts for ride matches, messages, and updates.
-- *Feedback System*: Submit ratings and comments on completed rides.
+- **User Registration and Authentication**: Secure login and profile management.
+- **Intelligent Ride Matching**: Matches users based on schedules, routes, and preferences.
+- **Ride Scheduling**: Schedule carpools up to one week in advance.
+- **In-App Communication**: Real-time chat between matched carpool partners.
+- **Notifications**: Alerts for ride matches, messages, and updates.
+- **Feedback System**: Submit ratings and comments on completed rides.
 
 ## Technologies Used
 
-- *Frontend*: React.js, Tailwind CSS
-- *Backend*: Node.js, Express.js
-- *Database*: MongoDB
-- *Real-Time Communication*: Socket.io
-- *Geospatial Data*: Google Maps API
-- *Authentication*: Clerk.js
-- *Machine Learning*: Scikit-learn
+- **Frontend**: React.js, Tailwind CSS
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **Real-Time Communication**: Socket.io
+- **Geospatial Data**: Google Maps API
+- **Authentication**: Clerk.js
+- **Machine Learning**: Scikit-learn
 
 ## Objectives
 
@@ -31,7 +31,7 @@
 
 ## Usage
 
-1. *Register* or *Login* to your account.
+1. **Register** or **Login** to your account.
 2. Set up your profile with commuting preferences.
 3. Create or join a carpool by providing route details.
 4. Communicate with carpool partners via in-app messaging.
