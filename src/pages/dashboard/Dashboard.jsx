@@ -221,7 +221,6 @@ const Dashboard = ({ initialTab = null }) => {
         )}
       </AnimatePresence>
 
-      {/* Add Toast */}
       <AnimatePresence>
         {toast && (
           <Toast

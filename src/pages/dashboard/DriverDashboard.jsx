@@ -150,9 +150,14 @@ const DriverDashboard = ({ initialTab = null }) => {
   const [activeTab, setActiveTab] = useState(initialTab || 'dashboard');
   const [selectedRide, setSelectedRide] = useState(null);
   const navigate = useNavigate();
-  const { dispatch } = useAuth();
+  const { dispatch, user } = useAuth();
   const { unreadCount } = useNotifications();
   const [activeRideCount, setActiveRideCount] = useState(0);
+  const [totalPassengers, setTotalPassengers] = useState(0);
+  const [driverRating, setDriverRating] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [todayRides, setTodayRides] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   const handleLogout = () => {
     localStorage.removeItem('userToken');
@@ -173,9 +178,83 @@ const DriverDashboard = ({ initialTab = null }) => {
     }
   };
 
+  const fetchTotalPassengers = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('rides/passengers/total'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setTotalPassengers(response.data.count || 0);
+    } catch (error) {
+      console.error('Error fetching total passengers:', error);
+      setTotalPassengers(0);
+    }
+  };
+
+  const fetchDriverRating = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('driver/ratings'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setDriverRating(response.data.averageRating || 0);
+    } catch (error) {
+      console.error('Error fetching driver rating:', error);
+      setDriverRating(0);
+    }
+  };
+
+  const fetchTodayRides = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const today = new Date().toISOString().split('T')[0];
+      const response = await axios.get(apiRequest(`rides/date/${today}`), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setTodayRides(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching today rides:', error);
+      setTodayRides([]);
+    }
+  };
+
+  const fetchPendingRequests = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('rides/requests/pending'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setPendingRequests(response.data.count || 0);
+    } catch (error) {
+      console.error('Error fetching pending requests:', error);
+      setPendingRequests(0);
+    }
+  };
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      await Promise.all([
+        fetchActiveRideCount(),
+        fetchTotalPassengers(),
+        fetchDriverRating(),
+        fetchTodayRides(),
+        fetchPendingRequests()
+      ]);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchActiveRideCount();
-    const interval = setInterval(fetchActiveRideCount, 60000);
+    fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -228,6 +307,9 @@ const DriverDashboard = ({ initialTab = null }) => {
           whileTap={{ scale: 0.95 }}
         >
           <FaUsers /> Passengers
+          {pendingRequests > 0 && (
+            <Badge>{pendingRequests}</Badge>
+          )}
         </NavItem>
         <NavItem
           active={activeTab === 'messages'}
@@ -396,58 +478,71 @@ const DriverDashboard = ({ initialTab = null }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1>Welcome to Driver Mode!</h1>
+              <h1>Welcome to Driver Mode{user?.name ? `, ${user.name}` : ''}!</h1>
               <p>Manage your rides and connect with passengers</p>
             </WelcomeCard>
 
-            <StatsGrid>
-              <StatCard
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <h3>12</h3>
-                <p>Active Rides</p>
-              </StatCard>
-              <StatCard
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <h3>48</h3>
-                <p>Total Passengers</p>
-              </StatCard>
-              <StatCard
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <h3>4.8</h3>
-                <p>Rating</p>
-              </StatCard>
-            </StatsGrid>
+            {isLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p>Loading dashboard data...</p>
+              </div>
+            ) : (
+              <>
+                <StatsGrid>
+                  <StatCard
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab('activeRides')}
+                  >
+                    <h3>{activeRideCount}</h3>
+                    <p>Active Rides</p>
+                  </StatCard>
+                  <StatCard
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab('passengers')}
+                  >
+                    <h3>{totalPassengers}</h3>
+                    <p>Total Passengers</p>
+                  </StatCard>
+                  <StatCard
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab('ratings')}
+                  >
+                    <h3>{driverRating.toFixed(1)}</h3>
+                    <p>Rating</p>
+                  </StatCard>
+                </StatsGrid>
 
-            <ActionGrid>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Create New Ride</h3>
-                <p>Set up a new carpool route and schedule</p>
-              </ActionCard>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Passenger Requests</h3>
-                <p>View and manage ride requests</p>
-              </ActionCard>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTab('schedule')}
-              >
-                <h3>Today's Schedule</h3>
-                <p>View your upcoming rides for today</p>
-              </ActionCard>
-            </ActionGrid>
+                <ActionGrid>
+                  <ActionCard
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('createRide')}
+                  >
+                    <h3>Create New Ride</h3>
+                    <p>Set up a new carpool route and schedule</p>
+                  </ActionCard>
+                  <ActionCard
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('passengers')}
+                  >
+                    <h3>Passenger Requests {pendingRequests > 0 && `(${pendingRequests})`}</h3>
+                    <p>View and manage ride requests</p>
+                  </ActionCard>
+                  <ActionCard
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('schedule')}
+                  >
+                    <h3>Today's Schedule {todayRides.length > 0 && `(${todayRides.length})`}</h3>
+                    <p>View your upcoming rides for today</p>
+                  </ActionCard>
+                </ActionGrid>
+              </>
+            )}
           </>
         )}
       </MainContent>

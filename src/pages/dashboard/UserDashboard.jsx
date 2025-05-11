@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaRoute, FaCalendarAlt, FaComments, FaHistory, FaSignOutAlt, FaUser } from 'react-icons/fa';
@@ -11,6 +11,8 @@ import FindRidesSection from '../../components/rider/FindRides';
 import ScheduledRides from '../../components/rider/ScheduledRides';
 import Messages from '../../components/shared/Messages';
 import NotificationsPanel from '../../components/dashboard/NotificationsPanel';
+import axios from 'axios';
+import { apiRequest } from '../../config';
 
 const DashboardGrid = styled.div`
   display: grid;
@@ -104,13 +106,80 @@ const ActionCard = styled(motion.div)`
 const UserDashboard = ({ initialTab = null }) => {
   const [activeTab, setActiveTab] = useState(initialTab || 'dashboard');
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { unreadCount } = useNotifications();
+  const [isLoading, setIsLoading] = useState(true);
+  const [upcomingRides, setUpcomingRides] = useState([]);
+  const [availableMatches, setAvailableMatches] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  const fetchUpcomingRides = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('rides/user/upcoming'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setUpcomingRides(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching upcoming rides:', error);
+      setUpcomingRides([]);
+    }
+  };
+
+  const fetchAvailableMatches = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('rides/available'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setAvailableMatches(response.data.count || 0);
+    } catch (error) {
+      console.error('Error fetching available matches:', error);
+      setAvailableMatches(0);
+    }
+  };
+
+  const fetchUnreadMessages = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.get(apiRequest('messages/unread'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setUnreadMessages(response.data.count || 0);
+    } catch (error) {
+      console.error('Error fetching unread messages:', error);
+      setUnreadMessages(0);
+    }
+  };
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      await Promise.all([
+        fetchUpcomingRides(),
+        fetchAvailableMatches(),
+        fetchUnreadMessages()
+      ]);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <DashboardGrid>
@@ -130,6 +199,23 @@ const UserDashboard = ({ initialTab = null }) => {
           whileTap={{ scale: 0.95 }}
         >
           <FaRoute /> Find Rides
+          {availableMatches > 0 && (
+            <div style={{
+              position: 'absolute',
+              right: '10px',
+              backgroundColor: '#4ade80',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {availableMatches > 99 ? '99+' : availableMatches}
+            </div>
+          )}
         </NavItem>
         <NavItem
           active={activeTab === 'schedule'}
@@ -138,6 +224,23 @@ const UserDashboard = ({ initialTab = null }) => {
           whileTap={{ scale: 0.95 }}
         >
           <FaCalendarAlt /> Schedule Rides
+          {upcomingRides.length > 0 && (
+            <div style={{
+              position: 'absolute',
+              right: '10px',
+              backgroundColor: '#4ade80',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {upcomingRides.length}
+            </div>
+          )}
         </NavItem>
         <NavItem
           active={activeTab === 'messages'}
@@ -146,6 +249,23 @@ const UserDashboard = ({ initialTab = null }) => {
           whileTap={{ scale: 0.95 }}
         >
           <FaComments /> Messages
+          {unreadMessages > 0 && (
+            <div style={{
+              position: 'absolute',
+              right: '10px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {unreadMessages > 99 ? '99+' : unreadMessages}
+            </div>
+          )}
         </NavItem>
         <NavItem
           active={activeTab === 'history'}
@@ -220,33 +340,42 @@ const UserDashboard = ({ initialTab = null }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1>Welcome back, User!</h1>
+              <h1>Welcome back{user?.name ? `, ${user.name}` : ''}!</h1>
               <p>Find your perfect carpool match today</p>
             </WelcomeCard>
 
-            <ActionGrid>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Quick Find Ride</h3>
-                <p>Search for available carpools matching your route</p>
-              </ActionCard>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Scheduled Rides</h3>
-                <p>View and manage your upcoming rides</p>
-              </ActionCard>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Messages</h3>
-                <p>Chat with your carpool matches</p>
-              </ActionCard>
-            </ActionGrid>
+            {isLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p>Loading dashboard data...</p>
+              </div>
+            ) : (
+              <ActionGrid>
+                <ActionCard
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('findRides')}
+                >
+                  <h3>Find Rides {availableMatches > 0 && `(${availableMatches} available)`}</h3>
+                  <p>Search for available carpools matching your route</p>
+                </ActionCard>
+                <ActionCard
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('schedule')}
+                >
+                  <h3>Scheduled Rides {upcomingRides.length > 0 && `(${upcomingRides.length} upcoming)`}</h3>
+                  <p>View and manage your upcoming rides</p>
+                </ActionCard>
+                <ActionCard
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('messages')}
+                >
+                  <h3>Messages {unreadMessages > 0 && `(${unreadMessages} unread)`}</h3>
+                  <p>Chat with your carpool matches</p>
+                </ActionCard>
+              </ActionGrid>
+            )}
           </>
         )}
       </MainContent>
