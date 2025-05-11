@@ -5,16 +5,21 @@ import { FaCheckCircle, FaUserAlt, FaTimes, FaCarAlt, FaMapMarkerAlt, FaClock, F
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { apiRequest } from '../../config';
+import { reverseGeocodeWithDelay } from '../../utils/geocoding';
 
 const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
   const [passengers, setPassengers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pickupsComplete, setPickupsComplete] = useState(false);
   const [error, setError] = useState(null);
+  const [locationNames, setLocationNames] = useState(ride.locationNames || {});
   
   useEffect(() => {
     if (ride?._id) {
       fetchPassengers();
+      if (!ride.locationNames || Object.keys(ride.locationNames).length === 0) {
+        fetchLocationNames();
+      }
     } else {
       setError('Ride information is missing or incomplete');
       setLoading(false);
@@ -41,6 +46,58 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
       toast.error('Failed to load passengers');
       setLoading(false);
     }
+  };
+
+  const fetchLocationNames = async () => {
+    if (!ride.route || !ride.route.coordinates) return;
+
+    try {
+      const newLocationNames = {};
+      const uniqueLocations = new Set();
+      
+      if (Array.isArray(ride.route.coordinates) && ride.route.coordinates.length >= 2) {
+        uniqueLocations.add(`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`);
+        uniqueLocations.add(`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`);
+      }
+
+      // Filter out coordinates we already have
+      const locationsToFetch = Array.from(uniqueLocations)
+        .filter(coordKey => !locationNames[coordKey]);
+
+      if (locationsToFetch.length === 0) return;
+
+      // Fetch in parallel with a maximum of 2 concurrent requests
+      const batchSize = 2;
+      for (let i = 0; i < locationsToFetch.length; i += batchSize) {
+        const batch = locationsToFetch.slice(i, i + batchSize);
+        const promises = batch.map(coordKey => {
+          const [lat, lng] = coordKey.split(',').map(Number);
+          return reverseGeocodeWithDelay(lat, lng)
+            .then(name => ({ coordKey, name }))
+            .catch(() => ({ coordKey, name: coordKey }));
+        });
+
+        const results = await Promise.all(promises);
+        results.forEach(({ coordKey, name }) => {
+          newLocationNames[coordKey] = name;
+        });
+      }
+
+      if (Object.keys(newLocationNames).length > 0) {
+        setLocationNames(prev => ({ ...prev, ...newLocationNames }));
+      }
+    } catch (error) {
+      console.error('Error fetching location names:', error);
+    }
+  };
+
+  const getLocationName = (coordinates) => {
+    if (!coordinates || !Array.isArray(coordinates) || coordinates.length < 2) {
+      return 'Unknown location';
+    }
+    
+    const key = `${coordinates[1]},${coordinates[0]}`;
+    return locationNames[key] || `${coordinates[1].toFixed(6)}, ${coordinates[0].toFixed(6)}`;
   };
 
   const handlePickupPassenger = async (requestId) => {
@@ -145,11 +202,20 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
     );
   }
 
+  // Get location names for the title
+  const startingPoint = ride.route && ride.route.coordinates ? 
+    getLocationName(ride.route.coordinates[0]) : 
+    (ride.route?.from || 'Starting point');
+  
+  const destination = ride.route && ride.route.coordinates ? 
+    getLocationName(ride.route.coordinates[1]) : 
+    (ride.route?.to || 'Destination');
+
   return (
     <Container>
       <Header>
         <Title>
-          Active Ride: {ride.route?.from || 'Starting point'} to {ride.route?.to || 'Destination'}
+          Active Ride: {startingPoint} to {destination}
         </Title>
         <CloseButton onClick={onClose}>
           <FaTimes />
@@ -169,11 +235,11 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
           </InfoItem>
           <InfoItem>
             <FaMapMarkerAlt />
-            <p>From: {ride.route?.from || 'Starting point'}</p>
+            <p>From: {startingPoint}</p>
           </InfoItem>
           <InfoItem>
             <FaMapMarkerAlt />
-            <p>To: {ride.route?.to || 'Destination'}</p>
+            <p>To: {destination}</p>
           </InfoItem>
         </RideInfo>
 

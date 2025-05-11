@@ -6,16 +6,24 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { API_URL, apiRequest } from '../../config';
 import ActiveRidePanel from './ActiveRidePanel';
+import { reverseGeocodeWithDelay } from '../../utils/geocoding';
 
 const ActiveRidesPanel = () => {
   const [activeRides, setActiveRides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRide, setSelectedRide] = useState(null);
   const [showActiveRideManager, setShowActiveRideManager] = useState(false);
+  const [locationNames, setLocationNames] = useState({});
 
   useEffect(() => {
     fetchActiveRides();
   }, []);
+
+  useEffect(() => {
+    if (activeRides.length > 0) {
+      fetchLocationNames();
+    }
+  }, [activeRides]);
 
   const fetchActiveRides = async () => {
     try {
@@ -36,6 +44,62 @@ const ActiveRidesPanel = () => {
     }
   };
 
+  const fetchLocationNames = async () => {
+    try {
+      const newLocationNames = {};
+      const uniqueLocations = new Set();
+      
+      // Collect all unique coordinates from rides
+      activeRides.forEach(ride => {
+        if (ride.route && ride.route.coordinates) {
+          // Handle both starting and destination coordinates
+          if (Array.isArray(ride.route.coordinates) && ride.route.coordinates.length >= 2) {
+            uniqueLocations.add(`${ride.route.coordinates[0][1]},${ride.route.coordinates[0][0]}`);
+            uniqueLocations.add(`${ride.route.coordinates[1][1]},${ride.route.coordinates[1][0]}`);
+          }
+        }
+      });
+
+      // Filter out coordinates we already have
+      const locationsToFetch = Array.from(uniqueLocations)
+        .filter(coordKey => !locationNames[coordKey]);
+
+      if (locationsToFetch.length === 0) return;
+
+      // Fetch in parallel with a maximum of 4 concurrent requests
+      const batchSize = 4;
+      for (let i = 0; i < locationsToFetch.length; i += batchSize) {
+        const batch = locationsToFetch.slice(i, i + batchSize);
+        const promises = batch.map(coordKey => {
+          const [lat, lng] = coordKey.split(',').map(Number);
+          return reverseGeocodeWithDelay(lat, lng)
+            .then(name => ({ coordKey, name }))
+            .catch(() => ({ coordKey, name: coordKey }));
+        });
+
+        const results = await Promise.all(promises);
+        results.forEach(({ coordKey, name }) => {
+          newLocationNames[coordKey] = name;
+        });
+      }
+
+      if (Object.keys(newLocationNames).length > 0) {
+        setLocationNames(prev => ({ ...prev, ...newLocationNames }));
+      }
+    } catch (error) {
+      console.error('Error fetching location names:', error);
+    }
+  };
+
+  const getLocationName = (coordinates) => {
+    if (!coordinates || !Array.isArray(coordinates) || coordinates.length < 2) {
+      return 'Unknown location';
+    }
+
+    const key = `${coordinates[1]},${coordinates[0]}`;
+    return locationNames[key] || `${coordinates[1].toFixed(6)}, ${coordinates[0].toFixed(6)}`;
+  };
+
   const handleRideComplete = async () => {
     setShowActiveRideManager(false);
     setSelectedRide(null);
@@ -50,7 +114,7 @@ const ActiveRidesPanel = () => {
     }
     
     console.log('Managing ride:', ride);
-    setSelectedRide(ride);
+    setSelectedRide({...ride, locationNames});
     setShowActiveRideManager(true);
   };
 
@@ -111,8 +175,14 @@ const ActiveRidesPanel = () => {
                         <RideRoute>
                           <FaMapMarkerAlt />
                           <RouteText>
-                            <div>{ride.route.from || 'Starting point'}</div>
-                            <div>{ride.route.to || 'Destination'}</div>
+                            <div>From: {ride.route && ride.route.coordinates ? 
+                              getLocationName(ride.route.coordinates[0]) : 
+                              (ride.route.from || 'Starting point')}
+                            </div>
+                            <div>To: {ride.route && ride.route.coordinates ? 
+                              getLocationName(ride.route.coordinates[1]) : 
+                              (ride.route.to || 'Destination')}
+                            </div>
                           </RouteText>
                         </RideRoute>
 
