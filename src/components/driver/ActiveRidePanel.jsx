@@ -259,20 +259,6 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
                       .map(passenger => (
                         <PassengerCard key={passenger._id}>
                           <PassengerInfo>
-                            <Avatar>
-                              {passenger.passenger?.profilePicture ? (
-                                <img 
-                                  src={passenger.passenger.profilePicture} 
-                                  alt={passenger.passenger.name || 'Passenger'}
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'https://via.placeholder.com/40';
-                                  }}
-                                />
-                              ) : (
-                                <FaUserAlt />
-                              )}
-                            </Avatar>
                             <div>
                               <PassengerName>{passenger.passenger?.name || 'Passenger'}</PassengerName>
                               <PassengerStatus>Waiting for pickup</PassengerStatus>
@@ -298,20 +284,6 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
                       .map(passenger => (
                         <PassengerCard key={passenger._id} pickedUp>
                           <PassengerInfo>
-                            <Avatar>
-                              {passenger.passenger?.profilePicture ? (
-                                <img 
-                                  src={passenger.passenger.profilePicture} 
-                                  alt={passenger.passenger.name || 'Passenger'}
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'https://via.placeholder.com/40';
-                                  }}
-                                />
-                              ) : (
-                                <FaUserAlt />
-                              )}
-                            </Avatar>
                             <div>
                               <PassengerName>{passenger.passenger?.name || 'Passenger'}</PassengerName>
                               <PassengerStatus pickedUp>
@@ -460,24 +432,6 @@ const PassengerInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-`;
-
-const Avatar = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  overflow: hidden;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 `;
 
 const PassengerName = styled.div`
