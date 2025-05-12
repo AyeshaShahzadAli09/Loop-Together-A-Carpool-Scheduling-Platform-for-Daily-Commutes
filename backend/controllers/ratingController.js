@@ -48,7 +48,7 @@ export const submitRating = async (req, res, next) => {
     await notificationService.createNotification({
       user: rideRequest.carpool.driver,
       message: `A passenger has rated your ride ${rating}/5 stars.`,
-      type: 'Rating',
+      type: 'System',
       mode: 'driver',
       relatedEntity: rideId,
       refModel: 'Carpool',

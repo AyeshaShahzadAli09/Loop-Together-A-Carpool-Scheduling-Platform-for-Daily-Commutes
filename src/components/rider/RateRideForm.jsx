@@ -15,6 +15,7 @@ const RateRideForm = () => {
   const [ride, setRide] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     fetchRideDetails();
@@ -54,17 +55,48 @@ const RateRideForm = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      toast.success('Thank you for your rating!');
-      navigate('/rider/dashboard');
-    } catch (error) {
-      toast.error('Failed to submit rating');
-      console.error(error);
+      toast.success('Thank you for your rating!', {
+        duration: 3000
+      });
       setSubmitting(false);
+      setSuccess(true);
+      
+      setTimeout(() => {
+        navigate('/rider/dashboard');
+      }, 2000);
+    } catch (error) {
+      if (error.response?.data?.message === 'You have already rated this ride') {
+        toast.error('You have already rated this ride');
+        setTimeout(() => navigate('/rider/dashboard'), 1500);
+      } else {
+        toast.error('Failed to submit rating');
+        console.error(error);
+        setSubmitting(false);
+      }
     }
   };
 
   if (loading) {
     return <LoadingContainer>Loading ride details...</LoadingContainer>;
+  }
+
+  if (success) {
+    return (
+      <Container
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+      >
+        <SuccessContent>
+          <SuccessIcon>
+            <FaCheck />
+          </SuccessIcon>
+          <h2>Rating Submitted!</h2>
+          <p>Thank you for your feedback.</p>
+          <p>Redirecting to dashboard...</p>
+        </SuccessContent>
+      </Container>
+    );
   }
 
   return (
@@ -123,13 +155,53 @@ const RateRideForm = () => {
             onClick={handleSubmitRating}
             disabled={submitting}
           >
-            {submitting ? 'Submitting...' : 'Submit Rating'}
+            {submitting ? (
+              <>
+                <LoadingSpinner /> Submitting...
+              </>
+            ) : (
+              'Submit Rating'
+            )}
           </SubmitButton>
         </RatingSection>
       </Content>
     </Container>
   );
 };
+
+// Styled components for success state
+const SuccessContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: white;
+  
+  h2 {
+    margin: 1rem 0;
+    font-size: 1.5rem;
+  }
+  
+  p {
+    margin: 0.5rem 0;
+    color: rgba(255, 255, 255, 0.8);
+  }
+`;
+
+const SuccessIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  font-size: 2rem;
+  border: 2px solid rgba(74, 222, 128, 0.3);
+`;
 
 // Styled components would go here - similar to existing styles
 const Container = styled(motion.div)`
@@ -146,6 +218,23 @@ const Container = styled(motion.div)`
   border: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
-// ... Other styled components would follow, matching your app's design
+// Add a loading spinner
+const LoadingSpinner = styled.div`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 
 export default RateRideForm; 
