@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { apiRequest } from '../../config';
 import { reverseGeocodeWithDelay } from '../../utils/geocoding';
 
-const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
+const ActiveRidePanel = ({ ride, onClose, onRideComplete, onRideUpdated }) => {
   const [passengers, setPassengers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pickupsComplete, setPickupsComplete] = useState(false);
@@ -102,6 +102,7 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
 
   const handlePickupPassenger = async (requestId) => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('userToken');
       await axios.put(apiRequest(`rides/pickup/${requestId}`), {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -109,16 +110,17 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
       
       toast.success('Passenger marked as picked up');
       
-      // Update local state
-      const updatedPassengers = passengers.map(p => 
-        p._id === requestId ? { ...p, status: 'PickedUp' } : p
-      );
+      // Refresh passenger data
+      await fetchPassengers();
       
-      setPassengers(updatedPassengers);
-      checkAllPickupsComplete(updatedPassengers);
+      // Notify parent component to update ride data
+      if (typeof onRideUpdated === 'function') {
+        onRideUpdated();
+      }
     } catch (error) {
       console.error('Failed to update passenger status:', error);
       toast.error('Failed to update passenger status');
+      setLoading(false);
     }
   };
 
@@ -131,6 +133,7 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
 
   const handleCompleteRide = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('userToken');
       await axios.put(apiRequest(`rides/complete/${ride._id}`), {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -144,6 +147,7 @@ const ActiveRidePanel = ({ ride, onClose, onRideComplete }) => {
     } catch (error) {
       console.error('Failed to complete ride:', error);
       toast.error('Failed to complete ride');
+      setLoading(false);
     }
   };
 

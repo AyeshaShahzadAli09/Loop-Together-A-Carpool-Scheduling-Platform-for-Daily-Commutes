@@ -106,6 +106,27 @@ const ActiveRidesPanel = () => {
     fetchActiveRides();
   };
 
+  const handleRideUpdated = async () => {
+    // Refresh the ride data in the parent component and update selectedRide
+    fetchActiveRides();
+    
+    // If there's a selected ride, refresh its data
+    if (selectedRide && selectedRide._id) {
+      const token = localStorage.getItem('userToken');
+      try {
+        const response = await axios.get(apiRequest(`rides/${selectedRide._id}`), {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (response.data.success && response.data.data) {
+          setSelectedRide({...response.data.data, locationNames});
+        }
+      } catch (error) {
+        console.error('Error refreshing selected ride:', error);
+      }
+    }
+  };
+
   const handleManageRide = (ride) => {
     if (!ride || !ride._id) {
       console.error('Cannot manage ride: Invalid ride data', ride);
@@ -144,6 +165,7 @@ const ActiveRidesPanel = () => {
                 ride={selectedRide}
                 onClose={handleBackToList}
                 onRideComplete={handleRideComplete}
+                onRideUpdated={handleRideUpdated}
               />
             </RideManagerContainer>
           ) : (
