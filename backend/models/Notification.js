@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['RideRequest', 'RideOffer', 'RideUpdate', 'Verification', 'Cancellation', 'Reminder', 'Payment', 'System']
+    enum: ['RideRequest', 'RideOffer', 'RideUpdate', 'RateRide', 'Verification', 'Cancellation', 'Reminder', 'Payment', 'System']
   },
   mode: {
     type: String,
