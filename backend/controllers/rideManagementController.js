@@ -1,5 +1,6 @@
 import Carpool from '../models/Carpool.js';
 import RideRequest from '../models/RideRequest.js';
+import Rating from '../models/Rating.js';
 import { ApiError } from '../utils/ApiError.js';
 import notificationService from '../services/notificationService.js';
 
@@ -188,6 +189,104 @@ export const getActiveRides = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: ridesWithPassengerCount
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get ride history for drivers
+export const getDriverRideHistory = async (req, res, next) => {
+  try {
+    // First, find all completed rides for this driver without populating
+    const completedRides = await Carpool.find({
+      driver: req.user._id,
+      status: 'Completed'
+    }).lean().sort({ endTime: -1, createdAt: -1 });
+    
+    if (!completedRides || completedRides.length === 0) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        data: []
+      });
+    }
+    
+    // Get the IDs of all rides
+    const rideIds = completedRides.map(ride => ride._id);
+    
+    // Fetch all ride requests for these rides in a single query
+    const allRideRequests = await RideRequest.find({
+      carpool: { $in: rideIds },
+      status: 'Completed'
+    }).populate('passenger', 'name').lean();
+    
+    // Fetch all ratings for these rides in a single query
+    const allRatings = await Rating.find({
+      carpool: { $in: rideIds }
+    }).lean();
+    
+    // Group ride requests and ratings by ride ID
+    const requestsByRide = {};
+    const ratingsByRide = {};
+    
+    allRideRequests.forEach(request => {
+      const rideId = request.carpool.toString();
+      if (!requestsByRide[rideId]) {
+        requestsByRide[rideId] = [];
+      }
+      requestsByRide[rideId].push(request);
+    });
+    
+    allRatings.forEach(rating => {
+      const rideId = rating.carpool.toString();
+      if (!ratingsByRide[rideId]) {
+        ratingsByRide[rideId] = [];
+      }
+      ratingsByRide[rideId].push(rating);
+    });
+    
+    // Combine everything into the final result
+    const completedRidesWithDetails = completedRides.map(ride => {
+      const rideId = ride._id.toString();
+      return {
+        ...ride,
+        rideRequests: requestsByRide[rideId] || [],
+        ratings: ratingsByRide[rideId] || []
+      };
+    });
+    
+    res.status(200).json({
+      success: true,
+      count: completedRidesWithDetails.length,
+      data: completedRidesWithDetails
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get ride history for riders
+export const getRiderRideHistory = async (req, res, next) => {
+  try {
+    // Find all accepted ride requests for this user
+    const rideRequests = await RideRequest.find({
+      passenger: req.user._id,
+      status: 'Completed'
+    })
+    .populate({
+      path: 'carpool',
+      populate: {
+        path: 'driver',
+        select: 'name'
+      }
+    })
+    .sort('-createdAt');
+    
+    res.status(200).json({
+      success: true,
+      count: rideRequests.length,
+      data: rideRequests
     });
   } catch (error) {
     next(error);

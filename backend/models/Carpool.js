@@ -56,6 +56,19 @@ const carpoolSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
+// Add virtual fields for ride requests and ratings
+carpoolSchema.virtual('rideRequests', {
+  ref: 'RideRequest',
+  localField: '_id',
+  foreignField: 'carpool'
+});
+
+carpoolSchema.virtual('ratings', {
+  ref: 'Rating',
+  localField: '_id',
+  foreignField: 'carpool'
+});
+
 // Geospatial index
 carpoolSchema.index({ route: '2dsphere' });
 

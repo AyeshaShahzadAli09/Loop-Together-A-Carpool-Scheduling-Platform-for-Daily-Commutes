@@ -11,6 +11,7 @@ import FindRidesSection from '../../components/rider/FindRides';
 import ScheduledRides from '../../components/rider/ScheduledRides';
 import Messages from '../../components/shared/Messages';
 import NotificationsPanel from '../../components/dashboard/NotificationsPanel';
+import RideHistory from '../../components/rider/RideHistory';
 import axios from 'axios';
 import { apiRequest } from '../../config';
 
@@ -333,6 +334,8 @@ const UserDashboard = ({ initialTab = null }) => {
           <ScheduledRides />
         ) : activeTab === 'notifications' ? (
           <NotificationsPanel />
+        ) : activeTab === 'history' ? (
+          <RideHistory />
         ) : (
           <>
             <WelcomeCard
@@ -373,6 +376,14 @@ const UserDashboard = ({ initialTab = null }) => {
                 >
                   <h3>Messages {unreadMessages > 0 && `(${unreadMessages} unread)`}</h3>
                   <p>Chat with your carpool matches</p>
+                </ActionCard>
+                <ActionCard
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('history')}
+                >
+                  <h3>Ride History</h3>
+                  <p>View your completed rides and provide ratings</p>
                 </ActionCard>
               </ActionGrid>
             )}

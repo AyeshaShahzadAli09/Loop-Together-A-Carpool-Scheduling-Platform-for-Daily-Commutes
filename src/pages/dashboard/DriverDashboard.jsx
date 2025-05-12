@@ -17,6 +17,7 @@ import { Bell } from 'lucide-react';
 import { useNotifications } from '../../context/NotificationContext';
 import RatingsPanel from '../../components/driver/RatingsPanel';
 import ActiveRidesPanel from '../../components/driver/ActiveRidesPanel';
+import RideHistory from '../../components/driver/RideHistory';
 import axios from 'axios';
 import { apiRequest } from '../../config';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -382,65 +383,7 @@ const DriverDashboard = ({ initialTab = null }) => {
             )}
           </div>
         ) : activeTab === 'history' ? (
-          <>
-            <WelcomeCard
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h1>Welcome to Driver Mode!</h1>
-              <p>Manage your rides and connect with passengers</p>
-            </WelcomeCard>
-
-            <StatsGrid>
-              <StatCard
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <h3>12</h3>
-                <p>Active Rides</p>
-              </StatCard>
-              <StatCard
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <h3>48</h3>
-                <p>Total Passengers</p>
-              </StatCard>
-              <StatCard
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <h3>4.8</h3>
-                <p>Rating</p>
-              </StatCard>
-            </StatsGrid>
-
-            <ActionGrid>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Create New Ride</h3>
-                <p>Set up a new carpool route and schedule</p>
-              </ActionCard>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <h3>Passenger Requests</h3>
-                <p>View and manage ride requests</p>
-              </ActionCard>
-              <ActionCard
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTab('schedule')}
-              >
-                <h3>Today's Schedule</h3>
-                <p>View your upcoming rides for today</p>
-              </ActionCard>
-            </ActionGrid>
-          </>
+          <RideHistory />
         ) : activeTab === 'passengers' ? (
           <Passengers />
         ) : activeTab === 'notifications' ? (
@@ -539,6 +482,14 @@ const DriverDashboard = ({ initialTab = null }) => {
                   >
                     <h3>Today's Schedule {todayRides.length > 0 && `(${todayRides.length})`}</h3>
                     <p>View your upcoming rides for today</p>
+                  </ActionCard>
+                  <ActionCard
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('history')}
+                  >
+                    <h3>Ride History</h3>
+                    <p>View your completed rides and passenger ratings</p>
                   </ActionCard>
                 </ActionGrid>
               </>

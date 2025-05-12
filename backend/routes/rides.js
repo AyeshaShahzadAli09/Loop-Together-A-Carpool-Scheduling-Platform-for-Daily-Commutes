@@ -5,7 +5,9 @@ import {
   startRide, 
   pickupPassenger, 
   completeRide,
-  getActiveRides 
+  getActiveRides,
+  getDriverRideHistory,
+  getRiderRideHistory
 } from '../controllers/rideManagementController.js';
 import { 
   submitRating, 
@@ -30,5 +32,9 @@ router.get('/active', protect, getActiveRides);
 // Rating routes
 router.post('/rate/:rideId', protect, submitRating);
 router.get('/ratings', protect, getDriverRatings);
+
+// Ride history routes
+router.get('/history', protect, getDriverRideHistory);
+router.get('/user/history', protect, getRiderRideHistory);
 
 export default router; 
