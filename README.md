@@ -3,13 +3,11 @@
 > **Save money. Cut emissions. Build community.**  
 > *Loop Together* is more than just a carpooling app — it's a smarter way to commute.
 
----
 
 ## Overview
 
 **Loop Together** is a community-powered carpool scheduling platform tailored for daily commuters. Designed to reduce transportation costs, alleviate traffic congestion, and promote environmental sustainability, the platform offers intelligent ride-matching, real-time communication, and seamless scheduling — all within a Progressive Web App (PWA) that works smoothly across devices.
 
----
 
 ## Features
 
@@ -31,7 +29,6 @@
 - **Feedback & Rating System**  
   Rate fellow riders and drivers to foster trust within the community.
 
----
 
 ## Tech Stack
 
@@ -44,15 +41,12 @@
 | **Geospatial API**| Leaflet or Nominatim Open Street Map|
 
 
----
-
 ## Project Objectives
 
 - Streamline carpool arrangements for recurring commutes.
 - Encourage cost-effective and eco-friendly travel.
 - Create a commuter network through shared daily rides.
 
----
 
 ## How to Use
 
@@ -62,7 +56,6 @@
 4. **Chat with Partners** via the built-in real-time messaging.
 5. **Complete the Ride** and leave a rating or comment.
 
----
 
 ## System Architecture
 
@@ -72,7 +65,6 @@ Loop Together follows the **Model-View-Controller (MVC)** design:
 - **View**: React.js-based interface for a clean, responsive UI.
 - **Controller**: Node.js/Express.js routes to handle logic and API requests.
 
----
 
 ## Non-Functional Highlights
 
@@ -81,7 +73,6 @@ Loop Together follows the **Model-View-Controller (MVC)** design:
 - **Usability**: Mobile-friendly, intuitive, and accessible design.
 - **Reliability**: High availability and backup support for data integrity.
 
----
 
 ## Future Enhancements
 
@@ -89,7 +80,6 @@ Loop Together follows the **Model-View-Controller (MVC)** design:
 - Enhanced security features and encryption.
 - Support for high concurrency and large-scale adoption.
 
----
 
 ## Get Started Today!
 
@@ -97,4 +87,3 @@ Whether you're a daily commuter or someone looking to reduce travel costs and ca
 
 > **Let’s build a greener future — one ride at a time.**
 
----
