@@ -1,4 +1,4 @@
-# 🚗 Loop Together: Your Smart Carpool Scheduler for Daily Commutes
+# Loop Together: Your Smart Carpool Scheduler for Daily Commutes
 
 > **Save money. Cut emissions. Build community.**  
 > *Loop Together* is more than just a carpooling app — it's a smarter way to commute.
