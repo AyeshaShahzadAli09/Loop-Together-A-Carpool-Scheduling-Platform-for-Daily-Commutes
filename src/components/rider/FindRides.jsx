@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaDollarSign, FaArrowLeft, FaCar } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaDollarSign, FaArrowLeft, FaCar, FaFilter } from 'react-icons/fa';
 import RouteMap from '../maps/RouteMap';
 import { useAuth } from '../../context/AuthContext';
 import SeatRequestModal from './SeatRequestModal';
@@ -264,6 +264,56 @@ const ActionContainer = styled.div`
   justify-content: center;
 `;
 
+// NEW: Filter menu and input styles
+const FilterMenu = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+`;
+
+const FilterLabel = styled.label`
+  font-size: 0.9rem;
+  color: #fff;
+`;
+
+const FilterInput = styled.input`
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  color: #333;
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  color: #333;
+`;
+
+const FilterButton = styled(motion.button)`
+  background: ${props => props.active ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${props => props.active ? '#4ade80' : 'rgba(255, 255, 255, 0.1)'};
+  color: ${props => props.active ? '#4ade80' : '#fff'};
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(74, 222, 128, 0.1);
+  }
+`;
+
 const FindRides = () => {
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -271,6 +321,14 @@ const FindRides = () => {
   const [selectedRide, setSelectedRide] = useState(null);
   const [showSeatModal, setShowSeatModal] = useState(false);
   const [selectedRideDetails, setSelectedRideDetails] = useState(null);
+  
+  // NEW: Filter states
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [filterSeats, setFilterSeats] = useState('');
+  const [filterGender, setFilterGender] = useState('No Preference');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterMinPrice, setFilterMinPrice] = useState('');
+  const [filterMaxPrice, setFilterMaxPrice] = useState('');
 
   // Fetch available rides from the backend
   const fetchRides = async () => {
@@ -327,6 +385,35 @@ const FindRides = () => {
     setShowSeatModal(true);
   };
 
+  // NEW: Apply filters to rides
+  const filteredRides = rides.filter(ride => {
+    let valid = true;
+
+    if (filterSeats) {
+      valid = valid && ride.availableSeats >= parseInt(filterSeats);
+    }
+    
+    if (filterGender && filterGender !== 'No Preference') {
+      valid = valid && ride.preferredGender && 
+        (ride.preferredGender === filterGender || ride.preferredGender === 'No Preference');
+    }
+    
+    if (filterDate) {
+      const rideDate = new Date(ride.schedule[0].departureTime).toISOString().split('T')[0];
+      valid = valid && (rideDate === filterDate);
+    }
+    
+    if (filterMinPrice) {
+      valid = valid && ride.pricePerSeat >= parseFloat(filterMinPrice);
+    }
+    
+    if (filterMaxPrice) {
+      valid = valid && ride.pricePerSeat <= parseFloat(filterMaxPrice);
+    }
+
+    return valid;
+  });
+
   // New modal submit handler
   const handleSeatSubmit = async (seatsRequested) => {
     // Validation 3: Check seat availability
@@ -373,11 +460,83 @@ const FindRides = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <h1>Find Rides</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h1>Find Rides</h1>
+        <FilterButton 
+          onClick={() => setShowFilterMenu(!showFilterMenu)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaFilter /> Filters
+        </FilterButton>
+      </div>
+
+      {/* NEW: Filter Menu */}
+      {showFilterMenu && (
+        <FilterMenu>
+          <div>
+            <FilterLabel>Seats:</FilterLabel>
+            <FilterInput
+              type="number"
+              placeholder="Min Seats"
+              value={filterSeats}
+              onChange={e => setFilterSeats(e.target.value)}
+              min="1"
+            />
+          </div>
+          <div>
+            <FilterLabel>Gender Preference:</FilterLabel>
+            <FilterSelect
+              value={filterGender}
+              onChange={e => setFilterGender(e.target.value)}
+            >
+              <option>No Preference</option>
+              <option>Male</option>
+              <option>Female</option>
+            </FilterSelect>
+          </div>
+          <div>
+            <FilterLabel>Date:</FilterLabel>
+            <FilterInput
+              type="date"
+              value={filterDate}
+              onChange={e => setFilterDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <FilterLabel>Min Price:</FilterLabel>
+            <FilterInput
+              type="number"
+              placeholder="Min Price"
+              value={filterMinPrice}
+              onChange={e => setFilterMinPrice(e.target.value)}
+            />
+          </div>
+          <div>
+            <FilterLabel>Max Price:</FilterLabel>
+            <FilterInput
+              type="number"
+              placeholder="Max Price"
+              value={filterMaxPrice}
+              onChange={e => setFilterMaxPrice(e.target.value)}
+            />
+          </div>
+          <FilterButton onClick={() => {
+            setFilterSeats('');
+            setFilterGender('No Preference');
+            setFilterDate('');
+            setFilterMinPrice('');
+            setFilterMaxPrice('');
+          }}>
+            Clear Filters
+          </FilterButton>
+        </FilterMenu>
+      )}
+
       <LayoutContainer $hasSelection={!!selectedRideDetails}>
         <RideGrid>
           <AnimatePresence>
-            {rides.map(ride => {
+            {filteredRides.map(ride => {
               // Map the route coordinates to start and end points.
               const startPoint = {
                 lat: ride.route.coordinates[0][1],
