@@ -196,11 +196,19 @@ const DriverDashboard = ({ initialTab = null }) => {
   const fetchDriverRating = async () => {
     try {
       const token = localStorage.getItem('userToken');
-      const response = await axios.get(apiRequest('driver/ratings'), {
+      const response = await axios.get(apiRequest('rides/ratings'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      setDriverRating(response.data.averageRating || 0);
+      // Calculate average rating from the ratings array
+      const ratingData = response.data.data;
+      if (ratingData && ratingData.length > 0) {
+        const total = ratingData.reduce((sum, r) => sum + r.rating, 0);
+        const avg = total / ratingData.length;
+        setDriverRating(avg);
+      } else {
+        setDriverRating(0);
+      }
     } catch (error) {
       console.error('Error fetching driver rating:', error);
       setDriverRating(0);
