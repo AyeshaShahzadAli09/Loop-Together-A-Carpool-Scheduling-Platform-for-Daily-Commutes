@@ -6,7 +6,7 @@
 
 ## Overview
 
-Loop Together is a community-powered carpool scheduling platform tailored for daily commuters. Designed to reduce transportation costs, alleviate traffic congestion, and promote environmental sustainability, the platform offers intelligent ride-matching, real-time communication, and seamless scheduling — all within a Progressive Web App (PWA) that works smoothly across devices.
+**Loop Together** is a community-powered carpool scheduling platform tailored for daily commuters. Designed to reduce transportation costs, alleviate traffic congestion, and promote environmental sustainability, the platform offers intelligent ride-matching, real-time communication, and seamless scheduling — all within a Progressive Web App (PWA) that works smoothly across devices.
 
 
 ## Features
