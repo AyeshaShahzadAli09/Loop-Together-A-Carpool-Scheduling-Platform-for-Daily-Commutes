@@ -350,7 +350,8 @@ const FindRides = () => {
       });
       const data = await response.json();
       if (data.success) {
-        alert('Ride request submitted successfully!');
+        console.log('Ride request submitted successfully!');
+        // alert('Ride request submitted successfully!');
       } else {
         alert('Failed to submit ride request.');
       }
