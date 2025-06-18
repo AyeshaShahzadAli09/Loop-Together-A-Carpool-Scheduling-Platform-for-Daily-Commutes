@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import Map from "./Map";
+// import Map from "./Map";
 
 const AppLayout = () => {
   const location = useLocation();

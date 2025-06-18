@@ -32,9 +32,9 @@ if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
   fs.mkdirSync(path.join(__dirname, 'uploads'));
 }
 
-// Update CORS options to expose headers
+// Update CORS options to allow all origins
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Authorization'],
@@ -90,4 +90,4 @@ app.listen(PORT, () => {
   console.log(`Frontend URL: ${process.env.FRONTEND_URL}`.cyan);
 });
 
-export default app; 
+export default app;
